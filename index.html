@@ -104,8 +104,8 @@
         box-shadow: 0 12px 30px rgba(2, 136, 209, 0.5);
       }
       .category-button span {
-        margin-right: 10px; /* Space between emoji and text */
-        font-size: clamp(1.2rem, 3.5vw, 2rem); /* Slightly larger emoji */
+        margin-right: 10px;
+        font-size: clamp(1.2rem, 3.5vw, 2rem);
       }
       #final-screen {
         position: absolute;
@@ -264,6 +264,7 @@
       let imageZoom = 0;
       let shakeOffset = 0;
       let shakeTimer = 0;
+      let animationFrameId = null;
 
       function preloadImages() {
         questionPool.forEach((q) => {
@@ -328,7 +329,8 @@
         canvas.style.display = "block";
         finalScreen.style.display = "none";
         resizeCanvas();
-        drawGame();
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        animationFrameId = requestAnimationFrame(drawGame);
       }
 
       function initLearn() {
@@ -339,11 +341,15 @@
         canvas.style.display = "block";
         finalScreen.style.display = "none";
         resizeCanvas();
-        drawLearn();
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        animationFrameId = requestAnimationFrame(drawLearn);
       }
 
       function drawGame() {
-        if (!isGameActive || mode !== "game") return;
+        if (!isGameActive || mode !== "game") {
+          if (animationFrameId) cancelAnimationFrame(animationFrameId);
+          return;
+        }
         const width = canvas.width / scaleFactor;
         const height = canvas.height / scaleFactor;
         ctx.clearRect(0, 0, width, height);
@@ -453,12 +459,31 @@
           ctx.font = `${Math.min(Math.max(height * 0.025, 14), 22)}px 'Poppins'`;
           wrapText(ctx, currentQuestion.description || "აღწერა არ არის ხელმისაწვდომი", width / 2, buttonYStart + overlayHeight / 2, width - 40, height * 0.03);
           feedbackTimer--;
-          requestAnimationFrame(drawGame);
         }
+
+        // Home button
+        const homeButtonSize = Math.min(height * 0.06, 40);
+        ctx.fillStyle = "#0288d1";
+        ctx.shadowColor = "rgba(0, 0, 0, 0.15)";
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetY = 4;
+        ctx.beginPath();
+        ctx.roundRect(width - homeButtonSize - 10, 10, homeButtonSize, homeButtonSize, 10);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.fillStyle = "#fff";
+        ctx.font = `${Math.min(Math.max(height * 0.03, 16), 24)}px 'Poppins'`;
+        ctx.fillText("🏠", width - homeButtonSize / 2 - 10, 10 + homeButtonSize / 2);
+
+        animationFrameId = requestAnimationFrame(drawGame);
       }
 
       function drawLearn() {
-        if (!isGameActive || mode !== "learn") return;
+        if (!isGameActive || mode !== "learn") {
+          if (animationFrameId) cancelAnimationFrame(animationFrameId);
+          return;
+        }
         const width = canvas.width / scaleFactor;
         const height = canvas.height / scaleFactor;
         ctx.clearRect(0, 0, width, height);
@@ -524,20 +549,55 @@
         wrapText(ctx, currentQuestion.description || "აღწერა არ არის ხელმისაწვდომი", width / 2, overlayYStart + overlayHeight / 2, width - 40, height * 0.03);
 
         const buttonHeight = Math.min(Math.max(height * 0.08, 40), 70);
-        const nextButtonY = height - buttonHeight - 20;
+        const buttonWidth = 120;
+        const buttonY = height - buttonHeight - 20;
+
+        // Back button
+        if (currentRound > 0) { // Only show if not on first slide
+          ctx.fillStyle = "#0288d1";
+          ctx.shadowColor = "rgba(0, 0, 0, 0.15)";
+          ctx.shadowBlur = 8;
+          ctx.shadowOffsetY = 4;
+          ctx.beginPath();
+          ctx.roundRect(width / 2 - buttonWidth - 10, buttonY, buttonWidth, buttonHeight, 15);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.shadowOffsetY = 0;
+          ctx.fillStyle = "#fff";
+          ctx.font = `${Math.min(Math.max(height * 0.025, 16), 24)}px 'Poppins'`;
+          ctx.fillText("უკან", width / 2 - buttonWidth / 2 - 10, buttonY + buttonHeight / 2);
+        }
+
+        // Next button
         ctx.fillStyle = "#0288d1";
         ctx.shadowColor = "rgba(0, 0, 0, 0.15)";
         ctx.shadowBlur = 8;
         ctx.shadowOffsetY = 4;
         ctx.beginPath();
-        ctx.roundRect(width / 2 - 80, nextButtonY, 160, buttonHeight, 15);
+        ctx.roundRect(width / 2 + 10, buttonY, buttonWidth, buttonHeight, 15);
         ctx.fill();
         ctx.shadowBlur = 0;
         ctx.shadowOffsetY = 0;
-
         ctx.fillStyle = "#fff";
         ctx.font = `${Math.min(Math.max(height * 0.025, 16), 24)}px 'Poppins'`;
-        ctx.fillText("შემდეგი", width / 2, nextButtonY + buttonHeight / 2);
+        ctx.fillText("შემდეგი", width / 2 + buttonWidth / 2 + 10, buttonY + buttonHeight / 2);
+
+        // Home button
+        const homeButtonSize = Math.min(height * 0.06, 40);
+        ctx.fillStyle = "#0288d1";
+        ctx.shadowColor = "rgba(0, 0, 0, 0.15)";
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetY = 4;
+        ctx.beginPath();
+        ctx.roundRect(width - homeButtonSize - 10, 10, homeButtonSize, homeButtonSize, 10);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.fillStyle = "#fff";
+        ctx.font = `${Math.min(Math.max(height * 0.03, 16), 24)}px 'Poppins'`;
+        ctx.fillText("🏠", width - homeButtonSize / 2 - 10, 10 + homeButtonSize / 2);
+
+        animationFrameId = requestAnimationFrame(drawLearn);
       }
 
       function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
@@ -571,6 +631,7 @@
 
       function endGame(message = null) {
         isGameActive = false;
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
         const maxScore = totalRounds * 100;
         const accuracy = correctCount + wrongCount > 0 ? Math.round((correctCount / (correctCount + wrongCount)) * 100) : 0;
         const stats = `
@@ -593,16 +654,35 @@
 
       function endLearn() {
         isGameActive = false;
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
         finalStatsEl.innerHTML = "სწავლა დასრულდა!";
         highScoreEl.textContent = "";
         canvas.style.display = "none";
         finalScreen.style.display = "flex";
       }
 
+      function returnToHome() {
+        isGameActive = false;
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        mode = null;
+        categoryScreen.classList.remove("learning-mode");
+        categoryScreen.style.display = "flex";
+        canvas.style.display = "none";
+        finalScreen.style.display = "none";
+        startScreen.style.display = "none";
+      }
+
       function handleInteraction(x, y) {
         if (!isGameActive) return;
         const width = canvas.width / scaleFactor;
         const height = canvas.height / scaleFactor;
+
+        // Home button interaction (common to both modes)
+        const homeButtonSize = Math.min(height * 0.06, 40);
+        if (x >= width - homeButtonSize - 10 && x <= width - 10 && y >= 10 && y <= 10 + homeButtonSize) {
+          returnToHome();
+          return;
+        }
 
         if (mode === "game" && feedbackTimer === 0) {
           const buttonHeight = Math.min(Math.max(height * 0.08, 40), 70);
@@ -617,8 +697,15 @@
           });
         } else if (mode === "learn") {
           const buttonHeight = Math.min(Math.max(height * 0.08, 40), 70);
-          const nextButtonY = height - buttonHeight - 20;
-          if (x >= width / 2 - 80 && x <= width / 2 + 80 && y >= nextButtonY && y <= nextButtonY + buttonHeight) {
+          const buttonWidth = 120;
+          const buttonY = height - buttonHeight - 20;
+
+          // Back button
+          if (currentRound > 0 && x >= width / 2 - buttonWidth - 10 && x <= width / 2 - 10 && y >= buttonY && y <= buttonY + buttonHeight) {
+            handleBackSlide();
+          }
+          // Next button
+          if (x >= width / 2 + 10 && x <= width / 2 + buttonWidth + 10 && y >= buttonY && y <= buttonY + buttonHeight) {
             handleNextSlide();
           }
         }
@@ -651,6 +738,7 @@
       });
 
       function handleAnswer(option) {
+        if (feedbackTimer > 0) return;
         const currentQuestion = quizQuestions[currentRound] || {};
         selectedAnswer = option;
         const points = calculateScore(option, currentQuestion.answer || 0, currentQuestion.options || [0, 0, 0]);
@@ -659,27 +747,29 @@
         if (option === currentQuestion.answer) {
           correctSound.play().catch(() => {});
           correctCount++;
-          confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+          confetti({ particleCount: 30, spread: 50, origin: { y: 0.6 } });
         } else {
           wrongSound.play().catch(() => {});
           wrongCount++;
         }
 
-        feedbackTimer = 100;
+        feedbackTimer = 60;
         imageZoom = 0;
         drawGame();
 
         setTimeout(() => {
+          if (!isGameActive) return;
           if (wrongCount >= 3) {
             endGame("ძალიან ბევრი არასწორი პასუხი!");
           } else if (currentRound + 1 < totalRounds) {
             currentRound++;
             selectedAnswer = null;
+            feedbackTimer = 0;
             drawGame();
           } else {
             endGame();
           }
-        }, 5000);
+        }, 1000);
       }
 
       function handleNextSlide() {
@@ -689,6 +779,14 @@
           drawLearn();
         } else {
           endLearn();
+        }
+      }
+
+      function handleBackSlide() {
+        if (currentRound > 0) {
+          currentRound--;
+          imageZoom = 0;
+          drawLearn();
         }
       }
 

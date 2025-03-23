@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Image Estimation Quiz - Mobile (Georgian)</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #74ebd5, #ffffff);
+        overflow: hidden;
+        touch-action: none;
+      }
+      #game-container {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      #game-canvas {
+        max-width: 400px;
+        max-height: 800px;
+        width: 100%;
+        height: 100%;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+        touch-action: manipulation;
+        display: none;
+      }
+      #category-screen, #start-screen {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #74ebd5, #ffffff);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 20px;
+        border-radius: 20px;
+        box-sizing: border-box;
+      }
+      #category-screen h1, #start-screen h1 {
+        font-size: 2.5em;
+        color: #333;
+        margin-bottom: 20px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+      .category-button, #start-button {
+        width: 160px;
+        height: 60px;
+        background: linear-gradient(45deg, #4facfe, #00f2fe);
+        color: white;
+        border: none;
+        border-radius: 30px;
+        font-size: 1.2em;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        margin: 10px;
+      }
+      .category-button:hover, #start-button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      }
+      #final-screen {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #ff6b6b, #8e2c5e);
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 20px;
+        animation: fadeIn 0.5s ease-in-out;
+        border-radius: 20px;
+        box-sizing: border-box;
+      }
+      #final-screen h2 {
+        font-size: 2.5em;
+        color: #fff;
+        margin-bottom: 20px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        animation: popIn 0.5s ease;
+      }
+      #final-stats {
+        background: rgba(255, 255, 255, 0.9);
+        padding: 15px 25px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+        margin-bottom: 20px;
+        color: #333;
+        font-size: 1.2em;
+        line-height: 1.6;
+      }
+      #high-score {
+        font-size: 1.3em;
+        color: #fff;
+        margin: 10px 0;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      }
+      #restart {
+        width: 140px;
+        height: 50px;
+        background: linear-gradient(45deg, #4facfe, #00f2fe);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        font-size: 1.1em;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+      }
+      #restart:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 20px rgba(255, 255, 255, 0.25);
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes popIn {
+        0% { transform: scale(0.5); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+    </style>
+    <script src="https://unpkg.com/@farcade/game-sdk@latest/dist/index.min.js"></script>
+  </head>
+  <body>
+    <div id="game-container">
+      <canvas id="game-canvas"></canvas>
+      <div id="category-screen">
+        <h1>აირჩიე კატეგორია</h1>
+        <button class="category-button" id="game-category">თამაში</button>
+        <button class="category-button" id="learn-category">სწავლა</button>
+      </div>
+      <div id="start-screen" style="display: none;">
+        <h1>იაპონური სანთლები!</h1>
+        <button id="start-button">თამაშის დაწყება</button>
+      </div>
+      <div id="final-screen">
+        <h2>თამაში დასრულდა!</h2>
+        <div id="final-stats"></div>
+        <div id="high-score"></div>
+        <button id="restart">თავიდან თამაში</button>
+      </div>
+    </div>
+
+    <script>
+      const questionPool = [
+        {
+          question: "კითხვა? ",
+          answer: "კალია",
+          options: ["გრძელფეხა დოჯი", "სასიკვდილო დოჯი", "კალია"],
+          image:
+            "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/bb1-DKDv7KiUtOSstb5xsFG2mvRcqkWiNA.jpeg?bRUv",
+          description:
+            "დოჯის იშვიათი სტრუქტურა, ხშირად კალიას უწოდებენ, მისი სტრუქტურიდან გამომდინარე. სანთელი იქმნება ტალღის ქვედა ნაწილში და აღმავალ ტალღაზე მიგვანიშნებს..",
+        },
+        {
+          question: "კითხვა? ",
+          answer: "სასიკვდილო დოჯი",
+          options: ["კალია", "სასიკვდილო დოჯი", "გრძელფეხა დოჯი"],
+          image:
+            "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/gravestone-WZn634IGj8HyRhLidmWqsrJIcE8KSO.jpeg?wlAd",
+          description:
+            "ყველაზე აგრესიული ბეარ სცენარის საწყისი, ყველაზე ნეგატიური სანთელი რომელიც გვანიშნებს ტრენდის შემოტრიალებაზე.",
+        },
+      ];
+
+      const correctSound = new Audio(
+        "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/correct-zZhYrVGunWGwLmLL0aEvGRPwhzCRLS.wav",
+      );
+      const wrongSound = new Audio(
+        "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/wrong-U7roBiQvNu0RarKFItCsIPhgzN8QZz.mpeg",
+      );
+
+      const canvas = document.getElementById("game-canvas");
+      const ctx = canvas.getContext("2d");
+      const categoryScreen = document.getElementById("category-screen");
+      const startScreen = document.getElementById("start-screen");
+      const startButton = document.getElementById("start-button");
+      const finalScreen = document.getElementById("final-screen");
+      const finalStatsEl = document.getElementById("final-stats");
+      const highScoreEl = document.getElementById("high-score");
+      const restartBtn = document.getElementById("restart");
+      const gameCategoryBtn = document.getElementById("game-category");
+      const learnCategoryBtn = document.getElementById("learn-category");
+
+      let currentRound = 0;
+      let score = 0;
+      let wrongCount = 0;
+      let correctCount = 0;
+      const totalRounds = 30;
+      let quizQuestions = [];
+      let selectedAnswer = null;
+      let feedbackTimer = 0;
+      let isGameActive = false;
+      let scaleFactor = 1;
+      let imageCache = {};
+      let mode = null; // "game" or "learn"
+
+      function preloadImages() {
+        questionPool.forEach((q) => {
+          if (q.image && !imageCache[q.image]) {
+            const img = new Image();
+            img.src = q.image;
+            img.crossOrigin = "Anonymous";
+            img.onload = () => {
+              console.log(`Image loaded: ${q.image}`);
+              imageCache[q.image] = img;
+            };
+            img.onerror = () => {
+              console.error(`Image failed to load: ${q.image}`);
+              imageCache[q.image] = null;
+            };
+          }
+        });
+        const iconUrl =
+          "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/sticker-uhB1G0rlyrpomrlXxFVTt8KLT4aGTU.webp?SGHY";
+        if (!imageCache[iconUrl]) {
+          const icon = new Image();
+          icon.src = iconUrl;
+          icon.crossOrigin = "Anonymous";
+          icon.onload = () => {
+            console.log(`Icon loaded: ${iconUrl}`);
+            imageCache[iconUrl] = icon;
+          };
+          icon.onerror = () => {
+            console.error(`Icon failed to load: ${iconUrl}`);
+            imageCache[iconUrl] = null;
+          };
+        }
+      }
+
+      function resizeCanvas() {
+        const maxWidth = 400;
+        const maxHeight = 800;
+        const dpr = window.devicePixelRatio || 1;
+        let width = Math.min(window.innerWidth * 0.95, maxWidth);
+        let height = Math.min(window.innerHeight * 0.95, maxHeight);
+        const aspectRatio = maxWidth / maxHeight;
+        if (width / height > aspectRatio) {
+          width = height * aspectRatio;
+        } else {
+          height = width / aspectRatio;
+        }
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        scaleFactor = dpr;
+        ctx.scale(dpr, dpr);
+        if (isGameActive) drawGame();
+      }
+
+      window.addEventListener("resize", resizeCanvas);
+      window.addEventListener("orientationchange", resizeCanvas);
+
+      function shuffle(array) {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+      }
+
+      function initGame() {
+        console.log("Initializing game...");
+        const baseQuestions = shuffle(questionPool);
+        quizQuestions = [];
+        while (quizQuestions.length < totalRounds) {
+          quizQuestions = quizQuestions.concat(shuffle([...baseQuestions]));
+        }
+        quizQuestions = quizQuestions.slice(0, totalRounds);
+        if (
+          !quizQuestions.length ||
+          !quizQuestions.every((q) => q && q.question && q.options && q.answer !== undefined && q.image)
+        ) {
+          console.error("Invalid quizQuestions data:", quizQuestions);
+          quizQuestions = [
+            {
+              question: "რომელ წელს?",
+              answer: 2023,
+              options: [2020, 2023, 2025],
+              image: "",
+              description: "ფაქტობრივი წელი 2023.",
+            },
+          ];
+        }
+        currentRound = 0;
+        score = 0;
+        wrongCount = 0;
+        correctCount = 0;
+        selectedAnswer = null;
+        feedbackTimer = 0;
+        isGameActive = true;
+        startScreen.style.display = "none";
+        canvas.style.display = "block";
+        finalScreen.style.display = "none";
+        resizeCanvas();
+        drawGame();
+      }
+
+      function initLearn() {
+        console.log("Initializing learn mode...");
+        quizQuestions = shuffle(questionPool); // Use all questions in random order
+        currentRound = 0;
+        isGameActive = true;
+        categoryScreen.style.display = "none";
+        canvas.style.display = "block";
+        finalScreen.style.display = "none";
+        resizeCanvas();
+        drawLearn();
+      }
+
+      function drawGame() {
+        if (!isGameActive || mode !== "game") return;
+
+        const width = canvas.width / scaleFactor;
+        const height = canvas.height / scaleFactor;
+        ctx.clearRect(0, 0, width, height);
+
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, width, height);
+
+        const imageAreaHeight = height * 0.33;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, width, imageAreaHeight);
+
+        const currentQuestion = quizQuestions[currentRound] || {};
+        const image = currentQuestion.image ? imageCache[currentQuestion.image] : null;
+        const imageSize = Math.min(imageAreaHeight * 0.9, width * 0.4);
+        try {
+          if (image && image.complete && image.naturalWidth > 0) {
+            const imageX = (width - imageSize) / 2;
+            const imageY = (imageAreaHeight - imageSize) / 2;
+            ctx.drawImage(image, imageX, imageY, imageSize, imageSize);
+          } else {
+            ctx.fillStyle = "#333";
+            ctx.font = `${height * 0.03}px 'Segoe UI'`;
+            ctx.textAlign = "center";
+            ctx.fillText("სურათი მიუწვდომელია", width / 2, imageAreaHeight / 2);
+          }
+        } catch (e) {
+          console.error(`Error drawing image for ${currentQuestion.image}: ${e.message}`);
+          ctx.fillStyle = "#333";
+          ctx.font = `${height * 0.03}px 'Segoe UI'`;
+          ctx.textAlign = "center";
+          ctx.fillText("სურათის შეცდომა", width / 2, imageAreaHeight / 2);
+        }
+
+        ctx.fillStyle = "#f9f9f9";
+        ctx.fillRect(0, imageAreaHeight, width, height - imageAreaHeight);
+
+        ctx.fillStyle = "#555";
+        ctx.font = `${height * 0.03}px 'Segoe UI'`;
+        ctx.textAlign = "center";
+        ctx.fillText(
+          `ქულა: ${score} | რაუნდი: ${currentRound + 1}/${totalRounds}`,
+          width / 2,
+          imageAreaHeight + height * 0.03,
+        );
+
+        ctx.fillStyle = "#e0e0e0";
+        ctx.fillRect(10, imageAreaHeight + height * 0.06, width - 20, height * 0.02);
+        ctx.fillStyle = "#ff6b6b";
+        const progress = ((currentRound + 1) / totalRounds) * (width - 20);
+        ctx.fillRect(10, imageAreaHeight + height * 0.06, progress, height * 0.02);
+
+        ctx.fillStyle = "#333";
+        ctx.font = `${height * 0.035}px 'Segoe UI'`;
+        wrapText(
+          ctx,
+          currentQuestion.question || "კითხვა მიუწვდომელია",
+          width / 2,
+          imageAreaHeight + height * 0.12,
+          width - 20,
+          height * 0.04,
+        );
+
+        const buttonHeight = height * 0.08;
+        const buttonSpacing = height * 0.02;
+        const buttonYStart = imageAreaHeight + height * 0.2;
+        const options = currentQuestion.options || [0, 0, 0];
+        options.forEach((option, idx) => {
+          const y = buttonYStart + idx * (buttonHeight + buttonSpacing);
+          const isCorrect = option === currentQuestion.answer;
+          const isSelected = option === selectedAnswer;
+
+          ctx.fillStyle =
+            feedbackTimer > 0 && isCorrect
+              ? `rgba(${40 + Math.sin(Date.now() / 200) * 20}, ${167 + Math.sin(Date.now() / 200) * 20}, 69, 1)`
+              : feedbackTimer > 0 && isSelected && !isCorrect
+                ? `rgba(${220 + Math.sin(Date.now() / 200) * 20}, ${53 + Math.sin(Date.now() / 200) * 20}, 69, 1)`
+                : "#f0f0f0";
+          ctx.fillRect(10, y, width - 20, buttonHeight);
+          ctx.strokeStyle = "#ddd";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(10, y, width - 20, buttonHeight);
+
+          ctx.fillStyle = feedbackTimer > 0 && isCorrect ? "#fff" : "#444";
+          ctx.font = `${height * 0.025}px 'Segoe UI'`;
+          ctx.fillText(`${String.fromCharCode(65 + idx)}) ${option}`, width / 2, y + buttonHeight / 2);
+        });
+
+        if (feedbackTimer > 0) {
+          const isCorrectAnswer = selectedAnswer === currentQuestion.answer;
+          ctx.fillStyle = isCorrectAnswer ? "rgba(0, 255, 0, 0.8)" : "rgba(255, 0, 0, 0.8)";
+          const overlayHeight = 3 * (buttonHeight + buttonSpacing);
+          ctx.fillRect(10, buttonYStart, width - 20, overlayHeight);
+
+          const iconSize = height * 0.09;
+          const iconX = width - 20 - iconSize - 10;
+          const iconY = buttonYStart + overlayHeight - iconSize - 10;
+          const icon =
+            imageCache[
+              "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/sticker-uhB1G0rlyrpomrlXxFVTt8KLT4aGTU.webp?SGHY"
+            ];
+          if (icon && icon.complete && icon.naturalWidth > 0) {
+            ctx.drawImage(icon, iconX, iconY, iconSize, iconSize);
+          } else {
+            ctx.fillStyle = "#fff";
+            ctx.font = `${height * 0.025}px 'Segoe UI'`;
+            ctx.textAlign = "center";
+            ctx.fillText("?", iconX + iconSize / 2, iconY + iconSize / 2);
+          }
+
+          ctx.fillStyle = "#fff";
+          ctx.font = `${height * 0.03}px 'Segoe UI'`;
+          ctx.textAlign = "center";
+          ctx.fillText(currentQuestion.answer || "უცნობი", width / 2, buttonYStart + height * 0.05);
+
+          ctx.font = `${height * 0.025}px 'Segoe UI'`;
+          wrapText(
+            ctx,
+            currentQuestion.description || "აღწერა არ არის ხელმისაწვდომი",
+            width / 2,
+            buttonYStart + overlayHeight / 2,
+            width - 40,
+            height * 0.03,
+          );
+          feedbackTimer--;
+          requestAnimationFrame(drawGame);
+        }
+      }
+
+      function drawLearn() {
+        if (!isGameActive || mode !== "learn") return;
+
+        const width = canvas.width / scaleFactor;
+        const height = canvas.height / scaleFactor;
+        ctx.clearRect(0, 0, width, height);
+
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, width, height);
+
+        const imageAreaHeight = height * 0.33;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, width, imageAreaHeight);
+
+        const currentQuestion = quizQuestions[currentRound] || {};
+        const image = currentQuestion.image ? imageCache[currentQuestion.image] : null;
+        const imageSize = Math.min(imageAreaHeight * 0.9, width * 0.4);
+        try {
+          if (image && image.complete && image.naturalWidth > 0) {
+            const imageX = (width - imageSize) / 2;
+            const imageY = (imageAreaHeight - imageSize) / 2;
+            ctx.drawImage(image, imageX, imageY, imageSize, imageSize);
+          } else {
+            ctx.fillStyle = "#333";
+            ctx.font = `${height * 0.03}px 'Segoe UI'`;
+            ctx.textAlign = "center";
+            ctx.fillText("სურათი მიუწვდომელია", width / 2, imageAreaHeight / 2);
+          }
+        } catch (e) {
+          console.error(`Error drawing image for ${currentQuestion.image}: ${e.message}`);
+          ctx.fillStyle = "#333";
+          ctx.font = `${height * 0.03}px 'Segoe UI'`;
+          ctx.textAlign = "center";
+          ctx.fillText("სურათის შეცდომა", width / 2, imageAreaHeight / 2);
+        }
+
+        ctx.fillStyle = "#f9f9f9";
+        ctx.fillRect(0, imageAreaHeight, width, height - imageAreaHeight);
+
+        ctx.fillStyle = "#555";
+        ctx.font = `${height * 0.03}px 'Segoe UI'`;
+        ctx.textAlign = "center";
+        ctx.fillText(
+          `სლაიდი: ${currentRound + 1}/${quizQuestions.length}`,
+          width / 2,
+          imageAreaHeight + height * 0.03,
+        );
+
+        ctx.fillStyle = "#333";
+        ctx.font = `${height * 0.035}px 'Segoe UI'`;
+        wrapText(
+          ctx,
+          currentQuestion.question || "კითხვა მიუწვდომელია",
+          width / 2,
+          imageAreaHeight + height * 0.12,
+          width - 20,
+          height * 0.04,
+        );
+
+        const overlayHeight = height * 0.4;
+        const overlayYStart = imageAreaHeight + height * 0.2;
+        ctx.fillStyle = "rgba(0, 255, 0, 0.8)"; // Always green for learning mode
+        ctx.fillRect(10, overlayYStart, width - 20, overlayHeight);
+
+        const iconSize = height * 0.09;
+        const iconX = width - 20 - iconSize - 10;
+        const iconY = overlayYStart + overlayHeight - iconSize - 10;
+        const icon =
+          imageCache[
+            "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/sticker-uhB1G0rlyrpomrlXxFVTt8KLT4aGTU.webp?SGHY"
+          ];
+        if (icon && icon.complete && icon.naturalWidth > 0) {
+          ctx.drawImage(icon, iconX, iconY, iconSize, iconSize);
+        } else {
+          ctx.fillStyle = "#fff";
+          ctx.font = `${height * 0.025}px 'Segoe UI'`;
+          ctx.textAlign = "center";
+          ctx.fillText("?", iconX + iconSize / 2, iconY + iconSize / 2);
+        }
+
+        ctx.fillStyle = "#fff";
+        ctx.font = `${height * 0.03}px 'Segoe UI'`;
+        ctx.textAlign = "center";
+        ctx.fillText(currentQuestion.answer || "უცნობი", width / 2, overlayYStart + height * 0.05);
+
+        ctx.font = `${height * 0.025}px 'Segoe UI'`;
+        wrapText(
+          ctx,
+          currentQuestion.description || "აღწერა არ არის ხელმისაწვდომი",
+          width / 2,
+          overlayYStart + overlayHeight / 2,
+          width - 40,
+          height * 0.03,
+        );
+
+        // Next slide button
+        const buttonHeight = height * 0.08;
+        const nextButtonY = height - buttonHeight - 20;
+        ctx.fillStyle = "#4facfe";
+        ctx.fillRect(width / 2 - 70, nextButtonY, 140, buttonHeight);
+        ctx.fillStyle = "#fff";
+        ctx.font = `${height * 0.025}px 'Segoe UI'`;
+        ctx.fillText("შემდეგი", width / 2, nextButtonY + buttonHeight / 2);
+      }
+
+      function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+        const words = (text || "").split(" ");
+        let line = "";
+        let lines = [];
+        for (let n = 0; n < words.length; n++) {
+          const testLine = line + words[n] + " ";
+          const metrics = ctx.measureText(testLine);
+          if (metrics.width > maxWidth && n > 0) {
+            lines.push(line);
+            line = words[n] + " ";
+          } else {
+            line = testLine;
+          }
+        }
+        lines.push(line);
+        lines.forEach((line, i) => {
+          ctx.fillText(line, x, y + (i - (lines.length - 1) / 2) * lineHeight);
+        });
+      }
+
+      function calculateScore(guess, answer, options) {
+        if (typeof guess === "string" && typeof answer === "string") {
+          return guess === answer ? 100 : 0;
+        }
+        const diff = Math.abs(guess - answer);
+        const maxDiff = Math.max(...options) - Math.min(...options);
+        return Math.max(0, 100 - Math.floor((diff / (maxDiff / 2)) * 100));
+      }
+
+      function endGame(message = null) {
+        isGameActive = false;
+        const maxScore = totalRounds * 100;
+        const accuracy =
+          correctCount + wrongCount > 0 ? Math.round((correctCount / (correctCount + wrongCount)) * 100) : 0;
+        const stats = `
+                ქულა: ${score} / ${maxScore}<br>
+                სწორი პასუხები: ${correctCount}<br>
+                არასწორი პასუხები: ${wrongCount}<br>
+                სიზუსტე: ${accuracy}%
+            `;
+        finalStatsEl.innerHTML = message || stats;
+        let highScore = localStorage.getItem("highScore") || 0;
+        if (score > highScore) {
+          highScore = score;
+          localStorage.setItem("highScore", highScore);
+        }
+        highScoreEl.textContent = `მაქსიმალური ქულა: ${highScore}`;
+        canvas.style.display = "none";
+        finalScreen.style.display = "flex";
+      }
+
+      function endLearn() {
+        isGameActive = false;
+        finalStatsEl.innerHTML = "სწავლა დასრულდა!";
+        highScoreEl.textContent = "";
+        canvas.style.display = "none";
+        finalScreen.style.display = "flex";
+      }
+
+      function handleInteraction(x, y) {
+        if (!isGameActive) return;
+
+        const width = canvas.width / scaleFactor;
+        const height = canvas.height / scaleFactor;
+
+        if (mode === "game") {
+          if (feedbackTimer > 0) return;
+          const buttonHeight = height * 0.08;
+          const buttonSpacing = height * 0.02;
+          const buttonYStart = height * 0.33 + height * 0.2;
+          const currentQuestion = quizQuestions[currentRound] || {};
+          const options = currentQuestion.options || [];
+          options.forEach((option, idx) => {
+            const buttonY = buttonYStart + idx * (buttonHeight + buttonSpacing);
+            if (x >= 10 && x <= width - 10 && y >= buttonY && y <= buttonY + buttonHeight) {
+              handleAnswer(option);
+            }
+          });
+        } else if (mode === "learn") {
+          const buttonHeight = height * 0.08;
+          const nextButtonY = height - buttonHeight - 20;
+          if (
+            x >= width / 2 - 70 &&
+            x <= width / 2 + 70 &&
+            y >= nextButtonY &&
+            y <= nextButtonY + buttonHeight
+          ) {
+            handleNextSlide();
+          }
+        }
+      }
+
+      canvas.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        const x = ((touch.clientX - rect.left) * scaleFactor) / (rect.width / (canvas.width / scaleFactor));
+        const y = ((touch.clientY - rect.top) * scaleFactor) / (rect.height / (canvas.height / scaleFactor));
+        handleInteraction(x, y);
+      });
+
+      canvas.addEventListener("click", (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) * scaleFactor) / (rect.width / (canvas.width / scaleFactor));
+        const y = ((e.clientY - rect.top) * scaleFactor) / (rect.height / (canvas.height / scaleFactor));
+        handleInteraction(x, y);
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (!isGameActive || feedbackTimer > 0 || mode !== "game") return;
+        const currentQuestion = quizQuestions[currentRound] || {};
+        const options = currentQuestion.options || [];
+        let idx = -1;
+        if (e.key === "a" || e.key === "A") idx = 0;
+        if (e.key === "b" || e.key === "B") idx = 1;
+        if (e.key === "c" || e.key === "C") idx = 2;
+        if (idx >= 0 && idx < options.length) {
+          handleAnswer(options[idx]);
+        }
+      });
+
+      function handleAnswer(option) {
+        const currentQuestion = quizQuestions[currentRound] || {};
+        selectedAnswer = option;
+        const points = calculateScore(option, currentQuestion.answer || 0, currentQuestion.options || [0, 0, 0]);
+        score += points;
+
+        if (option === currentQuestion.answer) {
+          correctSound.play().catch((err) => console.log("Correct sound error:", err));
+          correctCount++;
+        } else {
+          wrongSound.play().catch((err) => console.log("Wrong sound error:", err));
+          wrongCount++;
+        }
+
+        feedbackTimer = 300;
+        console.log(`Answer selected: ${option}, Score: ${score}, Round: ${currentRound + 1}, Wrong: ${wrongCount}`);
+        drawGame();
+
+        setTimeout(() => {
+          console.log(
+            `Feedback timeout ended. CurrentRound: ${currentRound}, WrongCount: ${wrongCount}, GameActive: ${isGameActive}`,
+          );
+          if (wrongCount >= 3) {
+            console.log("Ending game: Too many wrong answers");
+            endGame("ძალიან ბევრი არასწორი პასუხი!");
+          } else if (currentRound + 1 < totalRounds) {
+            currentRound++;
+            selectedAnswer = null;
+            console.log(`Advancing to round ${currentRound + 1}`);
+            drawGame();
+          } else {
+            console.log("Ending game: All rounds completed");
+            endGame();
+          }
+        }, 5000);
+      }
+
+      function handleNextSlide() {
+        if (currentRound + 1 < quizQuestions.length) {
+          currentRound++;
+          drawLearn();
+        } else {
+          endLearn();
+        }
+      }
+
+      gameCategoryBtn.addEventListener("click", () => {
+        mode = "game";
+        categoryScreen.style.display = "none";
+        startScreen.style.display = "flex";
+      });
+
+      learnCategoryBtn.addEventListener("click", () => {
+        mode = "learn";
+        initLearn();
+      });
+
+      startButton.addEventListener("click", () => {
+        initGame();
+      });
+
+      restartBtn.addEventListener("click", () => {
+        mode = null;
+        categoryScreen.style.display = "flex";
+        finalScreen.style.display = "none";
+      });
+
+      preloadImages();
+    </script>
+  </body>
+</html>

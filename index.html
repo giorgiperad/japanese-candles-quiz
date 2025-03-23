@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Japanese Candles Quiz - Modern</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Noto+Sans+Georgian:wght@400;600&display=swap" rel="stylesheet">
     <style>
       body {
         margin: 0;
@@ -14,7 +14,8 @@
         justify-content: center;
         align-items: center;
         min-height: 100vh;
-        background: linear-gradient(145deg, #e0f7fa, #80deea);
+        background: linear-gradient(145deg, #e0f7fa, #80deea), url('https://www.transparenttextures.com/patterns/paper.png');
+        background-blend-mode: overlay;
         overflow: hidden;
       }
       #game-container {
@@ -32,8 +33,10 @@
         max-height: 900px;
         border-radius: 25px;
         box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
-        background: #ffffff;
+        background: url('https://www.transparenttextures.com/patterns/rice-paper.png'), #ffffff;
+        background-blend-mode: overlay;
         display: none;
+        letter-spacing: 0.5px;
       }
       #category-screen, #start-screen {
         position: absolute;
@@ -50,6 +53,9 @@
         padding: 20px;
         border-radius: 25px;
         box-sizing: border-box;
+      }
+      #category-screen.learning-mode {
+        background: linear-gradient(145deg, #c8e6c9, #81c784);
       }
       #category-screen h1, #start-screen h1 {
         font-size: clamp(1.8rem, 5vw, 3.5rem);
@@ -69,10 +75,13 @@
         font-weight: 600;
         cursor: pointer;
         box-shadow: 0 8px 20px rgba(2, 136, 209, 0.3);
-        transition: all 0.3s ease;
+        transition: all 0.3s ease, transform 0.2s ease-in-out;
         margin: 15px;
         position: relative;
         overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
       .category-button::after, #start-button::after {
         content: '';
@@ -91,8 +100,12 @@
         height: 200%;
       }
       .category-button:hover, #start-button:hover {
-        transform: translateY(-5px);
+        transform: translateY(-5px) scale(1.05);
         box-shadow: 0 12px 30px rgba(2, 136, 209, 0.5);
+      }
+      .category-button span {
+        margin-right: 10px; /* Space between emoji and text */
+        font-size: clamp(1.2rem, 3.5vw, 2rem); /* Slightly larger emoji */
       }
       #final-screen {
         position: absolute;
@@ -144,7 +157,7 @@
         font-weight: 600;
         cursor: pointer;
         box-shadow: 0 8px 20px rgba(2, 136, 209, 0.3);
-        transition: all 0.3s ease;
+        transition: all 0.3s ease, transform 0.2s ease-in-out;
         position: relative;
         overflow: hidden;
       }
@@ -165,19 +178,31 @@
         height: 200%;
       }
       #restart:hover {
-        transform: translateY(-5px);
+        transform: translateY(-5px) scale(1.05);
         box-shadow: 0 12px 30px rgba(2, 136, 209, 0.5);
+      }
+      @keyframes shake {
+        0% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        50% { transform: translateX(5px); }
+        75% { transform: translateX(-5px); }
+        100% { transform: translateX(0); }
       }
     </style>
     <script src="https://unpkg.com/@farcade/game-sdk@latest/dist/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   </head>
   <body>
     <div id="game-container">
       <canvas id="game-canvas"></canvas>
       <div id="category-screen">
         <h1>აირჩიე კატეგორია</h1>
-        <button class="category-button" id="game-category">თამაში</button>
-        <button class="category-button" id="learn-category">სწავლა</button>
+        <button class="category-button" id="game-category">
+          <span>🎮</span> თამაში
+        </button>
+        <button class="category-button" id="learn-category">
+          <span>📚</span> სწავლა
+        </button>
       </div>
       <div id="start-screen" style="display: none;">
         <h1>იაპონური სანთლები!</h1>
@@ -197,28 +222,20 @@
           question: "კითხვა? ",
           answer: "კალია",
           options: ["გრძელფეხა დოჯი", "სასიკვდილო დოჯი", "კალია"],
-          image:
-            "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/bb1-DKDv7KiUtOSstb5xsFG2mvRcqkWiNA.jpeg?bRUv",
-          description:
-            "დოჯის იშვიათი სტრუქტურა, ხშირად კალიას უწოდებენ, მისი სტრუქტურიდან გამომდინარე. სანთელი იქმნება ტალღის ქვედა ნაწილში და აღმავალ ტალღაზე მიგვანიშნებს..",
+          image: "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/bb1-DKDv7KiUtOSstb5xsFG2mvRcqkWiNA.jpeg?bRUv",
+          description: "დოჯის იშვიათი სტრუქტურა, ხშირად კალიას უწოდებენ, მისი სტრუქტურიდან გამომდინარე. სანთელი იქმნება ტალღის ქვედა ნაწილში და აღმავალ ტალღაზე მიგვანიშნებს..",
         },
         {
           question: "კითხვა? ",
           answer: "სასიკვდილო დოჯი",
           options: ["კალია", "სასიკვდილო დოჯი", "გრძელფეხა დოჯი"],
-          image:
-            "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/gravestone-WZn634IGj8HyRhLidmWqsrJIcE8KSO.jpeg?wlAd",
-          description:
-            "ყველაზე აგრესიული ბეარ სცენარის საწყისი, ყველაზე ნეგატიური სანთელი რომელიც გვანიშნებს ტრენდის შემოტრიალებაზე.",
+          image: "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/gravestone-WZn634IGj8HyRhLidmWqsrJIcE8KSO.jpeg?wlAd",
+          description: "ყველაზე აგრესიული ბეარ სცენარის საწყისი, ყველაზე ნეგატიური სანთელი რომელიც გვანიშნებს ტრენდის შემოტრიალებაზე.",
         },
       ];
 
-      const correctSound = new Audio(
-        "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/correct-zZhYrVGunWGwLmLL0aEvGRPwhzCRLS.wav",
-      );
-      const wrongSound = new Audio(
-        "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/wrong-U7roBiQvNu0RarKFItCsIPhgzN8QZz.mpeg",
-      );
+      const correctSound = new Audio("https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/correct-zZhYrVGunWGwLmLL0aEvGRPwhzCRLS.wav");
+      const wrongSound = new Audio("https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/wrong-U7roBiQvNu0RarKFItCsIPhgzN8QZz.mpeg");
 
       const canvas = document.getElementById("game-canvas");
       const ctx = canvas.getContext("2d");
@@ -244,6 +261,9 @@
       let scaleFactor = 1;
       let imageCache = {};
       let mode = null;
+      let imageZoom = 0;
+      let shakeOffset = 0;
+      let shakeTimer = 0;
 
       function preloadImages() {
         questionPool.forEach((q) => {
@@ -255,8 +275,7 @@
             img.onerror = () => (imageCache[q.image] = null);
           }
         });
-        const iconUrl =
-          "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/sticker-uhB1G0rlyrpomrlXxFVTt8KLT4aGTU.webp?SGHY";
+        const iconUrl = "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/sticker-uhB1G0rlyrpomrlXxFVTt8KLT4aGTU.webp?SGHY";
         if (!imageCache[iconUrl]) {
           const icon = new Image();
           icon.src = iconUrl;
@@ -335,9 +354,6 @@
         const imageAreaHeight = height * 0.33;
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, width, imageAreaHeight);
-        ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
-        ctx.shadowBlur = 10;
-        ctx.shadowOffsetY = 5;
 
         const currentQuestion = quizQuestions[currentRound] || {};
         const image = imageCache[currentQuestion.image];
@@ -345,77 +361,82 @@
         if (image && image.complete && image.naturalWidth > 0) {
           const imageX = (width - imageSize) / 2;
           const imageY = (imageAreaHeight - imageSize) / 2;
-          ctx.drawImage(image, imageX, imageY, imageSize, imageSize);
+          imageZoom = Math.min(imageZoom + 0.05, 1);
+          ctx.save();
+          ctx.translate(imageX + imageSize / 2, imageY + imageSize / 2);
+          ctx.scale(imageZoom, imageZoom);
+          ctx.drawImage(image, -imageSize / 2, -imageSize / 2, imageSize, imageSize);
+          ctx.restore();
+          ctx.strokeStyle = "#0288d1";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(imageX, imageY, imageSize, imageSize);
         } else {
-          ctx.fillStyle = "#555";
-          ctx.font = `${height * 0.03}px 'Poppins'`;
-          ctx.textAlign = "center";
-          ctx.fillText("სურათი მიუწვდომელია", width / 2, imageAreaHeight / 2);
+          ctx.beginPath();
+          ctx.arc(width / 2, imageAreaHeight / 2, 20, 0, Math.PI * 2 * (Date.now() % 1000) / 1000);
+          ctx.strokeStyle = "#0288d1";
+          ctx.lineWidth = 3;
+          ctx.stroke();
         }
-        ctx.shadowBlur = 0;
-        ctx.shadowOffsetY = 0;
 
         ctx.fillStyle = "#f5f6fa";
         ctx.fillRect(0, imageAreaHeight, width, height - imageAreaHeight);
 
         ctx.fillStyle = "#0288d1";
-        ctx.font = `${height * 0.03}px 'Poppins'`;
+        ctx.font = `${Math.min(Math.max(height * 0.03, 16), 24)}px 'Poppins'`;
         ctx.textAlign = "center";
-        ctx.fillText(
-          `ქულა: ${score} | რაუნდი: ${currentRound + 1}/${totalRounds}`,
-          width / 2,
-          imageAreaHeight + height * 0.03,
-        );
+        ctx.fillText(`ქულა: ${score} | რაუნდი: ${currentRound + 1}/${totalRounds}`, width / 2, imageAreaHeight + height * 0.03);
 
-        ctx.fillStyle = "#e0e0e0";
-        ctx.fillRect(10, imageAreaHeight + height * 0.06, width - 20, height * 0.02);
-        ctx.fillStyle = "#ff8a80";
-        const progress = ((currentRound + 1) / totalRounds) * (width - 20);
-        ctx.fillRect(10, imageAreaHeight + height * 0.06, progress, height * 0.02);
+        const candleWidth = (width - 20) / totalRounds;
+        for (let i = 0; i < totalRounds; i++) {
+          ctx.fillStyle = i <= currentRound ? "#ff8a80" : "#e0e0e0";
+          ctx.fillRect(10 + i * candleWidth, imageAreaHeight + height * 0.06, candleWidth - 2, height * 0.02);
+        }
 
         ctx.fillStyle = "#01579b";
-        ctx.font = `${height * 0.035}px 'Poppins'`;
-        wrapText(
-          ctx,
-          currentQuestion.question || "კითხვა მიუწვდომელია",
-          width / 2,
-          imageAreaHeight + height * 0.12,
-          width - 40,
-          height * 0.04,
-        );
+        ctx.font = `${Math.min(Math.max(height * 0.035, 18), 28)}px 'Noto Sans Georgian'`;
+        wrapText(ctx, currentQuestion.question || "კითხვა მიუწვდომელია", width / 2, imageAreaHeight + height * 0.12, width - 40, height * 0.04);
 
-        const buttonHeight = height * 0.08;
-        const buttonSpacing = height * 0.02;
+        const buttonHeight = Math.min(Math.max(height * 0.08, 40), 70);
+        const buttonSpacing = height * 0.03;
         const buttonYStart = imageAreaHeight + height * 0.2;
         const options = currentQuestion.options || [0, 0, 0];
+
+        if (feedbackTimer > 0 && selectedAnswer !== currentQuestion.answer && shakeTimer < 15) {
+          shakeOffset = Math.sin(shakeTimer * Math.PI * 2) * 5;
+          shakeTimer++;
+        } else {
+          shakeOffset = 0;
+          shakeTimer = 0;
+        }
+
         options.forEach((option, idx) => {
           const y = buttonYStart + idx * (buttonHeight + buttonSpacing);
           const isCorrect = option === currentQuestion.answer;
           const isSelected = option === selectedAnswer;
+          const x = 20 + (isSelected && feedbackTimer > 0 && !isCorrect ? shakeOffset : 0);
 
-          ctx.fillStyle =
-            feedbackTimer > 0 && isCorrect
-              ? "#4caf50"
-              : feedbackTimer > 0 && isSelected && !isCorrect
-                ? "#f44336"
-                : "#ffffff";
+          ctx.fillStyle = feedbackTimer > 0 && isCorrect ? "#4caf50" : feedbackTimer > 0 && isSelected && !isCorrect ? "#f44336" : "#ffffff";
+          if (feedbackTimer > 0 && isCorrect) {
+            ctx.shadowColor = "#4caf50";
+            ctx.shadowBlur = 20;
+          }
           ctx.shadowColor = "rgba(0, 0, 0, 0.15)";
           ctx.shadowBlur = 8;
           ctx.shadowOffsetY = 4;
           ctx.beginPath();
-          ctx.roundRect(20, y, width - 40, buttonHeight, 15);
+          ctx.roundRect(x, y, width - 40, buttonHeight, 15);
           ctx.fill();
           ctx.shadowBlur = 0;
           ctx.shadowOffsetY = 0;
 
           ctx.fillStyle = feedbackTimer > 0 && isCorrect ? "#fff" : "#0288d1";
-          ctx.font = `${height * 0.025}px 'Poppins'`;
+          ctx.font = `${Math.min(Math.max(height * 0.025, 16), 24)}px 'Poppins'`;
           ctx.fillText(`${String.fromCharCode(65 + idx)}) ${option}`, width / 2, y + buttonHeight / 2);
         });
 
         if (feedbackTimer > 0) {
           const isCorrectAnswer = selectedAnswer === currentQuestion.answer;
-          ctx.fillStyle = isCorrectAnswer ? "rgba(rgba(100, 2, 53, 0.8)" : "rgba(125, 7, 7, 0.9)"; // Green for correct, red for wrong
+          ctx.fillStyle = isCorrectAnswer ? "rgba(76, 175, 80, 0.8)" : "rgba(244, 67, 54, 0.9)";
           const overlayHeight = 3 * (buttonHeight + buttonSpacing);
           ctx.fillRect(10, buttonYStart, width - 20, overlayHeight);
 
@@ -426,19 +447,11 @@
           if (icon && icon.complete) ctx.drawImage(icon, iconX, iconY, iconSize, iconSize);
 
           ctx.fillStyle = "#fff";
-          ctx.font = `${height * 0.03}px 'Poppins'`;
-          ctx.textAlign = "center";
+          ctx.font = `${Math.min(Math.max(height * 0.03, 16), 24)}px 'Poppins'`;
           ctx.fillText(currentQuestion.answer || "უცნობი", width / 2, buttonYStart + height * 0.05);
 
-          ctx.font = `${height * 0.025}px 'Poppins'`;
-          wrapText(
-            ctx,
-            currentQuestion.description || "აღწერა არ არის ხელმისაწვდომი",
-            width / 2,
-            buttonYStart + overlayHeight / 2,
-            width - 40,
-            height * 0.03,
-          );
+          ctx.font = `${Math.min(Math.max(height * 0.025, 14), 22)}px 'Poppins'`;
+          wrapText(ctx, currentQuestion.description || "აღწერა არ არის ხელმისაწვდომი", width / 2, buttonYStart + overlayHeight / 2, width - 40, height * 0.03);
           feedbackTimer--;
           requestAnimationFrame(drawGame);
         }
@@ -456,9 +469,6 @@
         const imageAreaHeight = height * 0.33;
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, width, imageAreaHeight);
-        ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
-        ctx.shadowBlur = 10;
-        ctx.shadowOffsetY = 5;
 
         const currentQuestion = quizQuestions[currentRound] || {};
         const image = imageCache[currentQuestion.image];
@@ -466,38 +476,34 @@
         if (image && image.complete) {
           const imageX = (width - imageSize) / 2;
           const imageY = (imageAreaHeight - imageSize) / 2;
-          ctx.drawImage(image, imageX, imageY, imageSize, imageSize);
+          imageZoom = Math.min(imageZoom + 0.05, 1);
+          ctx.save();
+          ctx.translate(imageX + imageSize / 2, imageY + imageSize / 2);
+          ctx.scale(imageZoom, imageZoom);
+          ctx.drawImage(image, -imageSize / 2, -imageSize / 2, imageSize, imageSize);
+          ctx.restore();
+          ctx.strokeStyle = "#0288d1";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(imageX, imageY, imageSize, imageSize);
         } else {
-          ctx.fillStyle = "#555";
-          ctx.font = `${height * 0.03}px 'Poppins'`;
-          ctx.textAlign = "center";
-          ctx.fillText("სურათი მიუწვდომელია", width / 2, imageAreaHeight / 2);
+          ctx.beginPath();
+          ctx.arc(width / 2, imageAreaHeight / 2, 20, 0, Math.PI * 2 * (Date.now() % 1000) / 1000);
+          ctx.strokeStyle = "#0288d1";
+          ctx.lineWidth = 3;
+          ctx.stroke();
         }
-        ctx.shadowBlur = 0;
-        ctx.shadowOffsetY = 0;
 
         ctx.fillStyle = "#f5f6fa";
         ctx.fillRect(0, imageAreaHeight, width, height - imageAreaHeight);
 
         ctx.fillStyle = "#0288d1";
-        ctx.font = `${height * 0.03}px 'Poppins'`;
+        ctx.font = `${Math.min(Math.max(height * 0.03, 16), 24)}px 'Poppins'`;
         ctx.textAlign = "center";
-        ctx.fillText(
-          `სლაიდი: ${currentRound + 1}/${quizQuestions.length}`,
-          width / 2,
-          imageAreaHeight + height * 0.03,
-        );
+        ctx.fillText(`სლაიდი: ${currentRound + 1}/${quizQuestions.length}`, width / 2, imageAreaHeight + height * 0.03);
 
         ctx.fillStyle = "#01579b";
-        ctx.font = `${height * 0.035}px 'Poppins'`;
-        wrapText(
-          ctx,
-          currentQuestion.question || "კითხვა მიუწვდომელია",
-          width / 2,
-          imageAreaHeight + height * 0.12,
-          width - 40,
-          height * 0.04,
-        );
+        ctx.font = `${Math.min(Math.max(height * 0.035, 18), 28)}px 'Noto Sans Georgian'`;
+        wrapText(ctx, currentQuestion.question || "კითხვა მიუწვდომელია", width / 2, imageAreaHeight + height * 0.12, width - 40, height * 0.04);
 
         const overlayHeight = height * 0.4;
         const overlayYStart = imageAreaHeight + height * 0.2;
@@ -511,21 +517,13 @@
         if (icon && icon.complete) ctx.drawImage(icon, iconX, iconY, iconSize, iconSize);
 
         ctx.fillStyle = "#fff";
-        ctx.font = `${height * 0.03}px 'Poppins'`;
-        ctx.textAlign = "center";
+        ctx.font = `${Math.min(Math.max(height * 0.03, 16), 24)}px 'Poppins'`;
         ctx.fillText(currentQuestion.answer || "უცნობი", width / 2, overlayYStart + height * 0.05);
 
-        ctx.font = `${height * 0.025}px 'Poppins'`;
-        wrapText(
-          ctx,
-          currentQuestion.description || "აღწერა არ არის ხელმისაწვდომი",
-          width / 2,
-          overlayYStart + overlayHeight / 2,
-          width - 40,
-          height * 0.03,
-        );
+        ctx.font = `${Math.min(Math.max(height * 0.025, 14), 22)}px 'Poppins'`;
+        wrapText(ctx, currentQuestion.description || "აღწერა არ არის ხელმისაწვდომი", width / 2, overlayYStart + overlayHeight / 2, width - 40, height * 0.03);
 
-        const buttonHeight = height * 0.08;
+        const buttonHeight = Math.min(Math.max(height * 0.08, 40), 70);
         const nextButtonY = height - buttonHeight - 20;
         ctx.fillStyle = "#0288d1";
         ctx.shadowColor = "rgba(0, 0, 0, 0.15)";
@@ -538,7 +536,7 @@
         ctx.shadowOffsetY = 0;
 
         ctx.fillStyle = "#fff";
-        ctx.font = `${height * 0.025}px 'Poppins'`;
+        ctx.font = `${Math.min(Math.max(height * 0.025, 16), 24)}px 'Poppins'`;
         ctx.fillText("შემდეგი", width / 2, nextButtonY + buttonHeight / 2);
       }
 
@@ -574,8 +572,7 @@
       function endGame(message = null) {
         isGameActive = false;
         const maxScore = totalRounds * 100;
-        const accuracy =
-          correctCount + wrongCount > 0 ? Math.round((correctCount / (correctCount + wrongCount)) * 100) : 0;
+        const accuracy = correctCount + wrongCount > 0 ? Math.round((correctCount / (correctCount + wrongCount)) * 100) : 0;
         const stats = `
                 ქულა: ${score} / ${maxScore}<br>
                 სწორი პასუხები: ${correctCount}<br>
@@ -587,6 +584,7 @@
         if (score > highScore) {
           highScore = score;
           localStorage.setItem("highScore", highScore);
+          confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
         }
         highScoreEl.textContent = `მაქსიმალური ქულა: ${highScore}`;
         canvas.style.display = "none";
@@ -607,8 +605,8 @@
         const height = canvas.height / scaleFactor;
 
         if (mode === "game" && feedbackTimer === 0) {
-          const buttonHeight = height * 0.08;
-          const buttonSpacing = height * 0.02;
+          const buttonHeight = Math.min(Math.max(height * 0.08, 40), 70);
+          const buttonSpacing = height * 0.03;
           const buttonYStart = height * 0.33 + height * 0.2;
           const options = quizQuestions[currentRound]?.options || [];
           options.forEach((option, idx) => {
@@ -618,14 +616,9 @@
             }
           });
         } else if (mode === "learn") {
-          const buttonHeight = height * 0.08;
+          const buttonHeight = Math.min(Math.max(height * 0.08, 40), 70);
           const nextButtonY = height - buttonHeight - 20;
-          if (
-            x >= width / 2 - 80 &&
-            x <= width / 2 + 80 &&
-            y >= nextButtonY &&
-            y <= nextButtonY + buttonHeight
-          ) {
+          if (x >= width / 2 - 80 && x <= width / 2 + 80 && y >= nextButtonY && y <= nextButtonY + buttonHeight) {
             handleNextSlide();
           }
         }
@@ -666,12 +659,14 @@
         if (option === currentQuestion.answer) {
           correctSound.play().catch(() => {});
           correctCount++;
+          confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
         } else {
           wrongSound.play().catch(() => {});
           wrongCount++;
         }
 
         feedbackTimer = 100;
+        imageZoom = 0;
         drawGame();
 
         setTimeout(() => {
@@ -690,6 +685,7 @@
       function handleNextSlide() {
         if (currentRound + 1 < quizQuestions.length) {
           currentRound++;
+          imageZoom = 0;
           drawLearn();
         } else {
           endLearn();
@@ -698,12 +694,14 @@
 
       gameCategoryBtn.addEventListener("click", () => {
         mode = "game";
+        categoryScreen.classList.remove("learning-mode");
         categoryScreen.style.display = "none";
         startScreen.style.display = "flex";
       });
 
       learnCategoryBtn.addEventListener("click", () => {
         mode = "learn";
+        categoryScreen.classList.add("learning-mode");
         initLearn();
       });
 
@@ -711,6 +709,7 @@
 
       restartBtn.addEventListener("click", () => {
         mode = null;
+        categoryScreen.classList.remove("learning-mode");
         categoryScreen.style.display = "flex";
         finalScreen.style.display = "none";
       });

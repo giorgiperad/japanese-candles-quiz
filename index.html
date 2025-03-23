@@ -223,33 +223,31 @@
           question: "რა არის ეს სანთელი?",
           answer: "კალია/Dragonfly Doji",
           options: ["გრძელფეხა დოჯი", "სასიკვდილო დოჯი", "კალია/Dragonfly Doji"],
-          image: "https://ta3bviqjtxy1kv7x.public.blob.vercel-storage.com/dragonfly-JW0AaWUPsWHwspdhPaFoKu6yzvH7qg.JPG",
+          image: "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/bb1-DKDv7KiUtOSstb5xsFG2mvRcqkWiNA.jpeg?bRUv",
           description: "დოჯის იშვიათი სტრუქტურა, ხშირად კალიას უწოდებენ, მისი სტრუქტურიდან გამომდინარე. სანთელი იქმნება ტალღის ქვედა ნაწილში და აღმავალ ტალღაზე მიგვანიშნებს.",
         },
         {
           question: "რა არის ეს სანთელი?",
           answer: "სასიკვდილო დოჯი",
           options: ["კალია", "სასიკვდილო დოჯი", "გრძელფეხა დოჯი"],
-          image: "https://ta3bviqjtxy1kv7x.public.blob.vercel-storage.com/gravestone-rk6lTfoINeUuqT4g6lUfhsyrxUx6Ps.JPG",
+          image: "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/gravestone-WZn634IGj8HyRhLidmWqsrJIcE8KSO.jpeg?wlAd",
           description: "ყველაზე აგრესიული ბეარ სცენარის საწყისი, ყველაზე ნეგატიური სანთელი რომელიც გვანიშნებს ტრენდის შემოტრიალებაზე.",
         },
-        // Add more game-specific questions here (up to 30 or as needed)
       ];
 
       const learnQuestionPool = [
         {
           question: "რას ნიშნავს კალია/Dragonfly Doji?",
           answer: "კალია/Dragonfly Doji",
-          image: "https://ta3bviqjtxy1kv7x.public.blob.vercel-storage.com/bb1-oKMLxm3KHDg19RJdvZM9AdgtMdfpy3.JPG",
+          image: "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/bb1-DKDv7KiUtOSstb5xsFG2mvRcqkWiNA.jpeg?bRUv",
           description: "ეს არის დოჯის ტიპი, რომელიც მიუთითებს პოტენციურ აღმავალ ტრენდზე. იგი ხშირად ჩნდება ფასის დაბალ წერტილში და გამოიყურება როგორც გრძელი ქვედა ჩრდილი მცირე სხეულით.",
         },
         {
           question: "რას ნიშნავს სასიკვდილო დოჯი?",
           answer: "სასიკვდილო დოჯი",
-          image: "https://ta3bviqjtxy1kv7x.public.blob.vercel-storage.com/bbasfrsa-jljy8YRTyJzTCUL4CZpxPgGvxszZI7.JPG",
+          image: "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/gravestone-WZn634IGj8HyRhLidmWqsrJIcE8KSO.jpeg?wlAd",
           description: "ეს სანთელი მიუთითებს ძლიერ დაცემით ტრენდზე. გამოიყურება როგორც გრძელი ზედა ჩრდილი მცირე სხეულით ფასის მაღალ წერტილში.",
         },
-        // Add more learning-specific questions here
       ];
 
       const correctSound = new Audio("https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/correct-zZhYrVGunWGwLmLL0aEvGRPwhzCRLS.wav");
@@ -268,6 +266,7 @@
       const learnCategoryBtn = document.getElementById("learn-category");
 
       const homeIconUrl = "https://ta3bviqjtxy1kv7x.public.blob.vercel-storage.com/sticker_cropped-YRsNVUTyZhP26sndK3A421L32kVly2.webp";
+      const descriptionIconUrl = "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/sticker-uhB1G0rlyrpomrlXxFVTt8KLT4aGTU.webp?SGHY";
 
       let currentRound = 0;
       let score = 0;
@@ -287,6 +286,9 @@
       let animationFrameId = null;
       const FEEDBACK_DURATION = 120;
 
+      // Adjustable image size multiplier (default 0.9, adjust as needed)
+      const QUESTION_IMAGE_SIZE_MULTIPLIER = 0.9; // Change this to 0.5 for smaller, 1.2 for larger, etc.
+
       function preloadImages() {
         [...gameQuestionPool, ...learnQuestionPool].forEach((q) => {
           if (q.image && !imageCache[q.image]) {
@@ -297,13 +299,12 @@
             img.onerror = () => (imageCache[q.image] = null);
           }
         });
-        const iconUrl = "https://ta3bviqjtxy1kv7x.public.blob.vercel-storage.com/sticker-22fp86elY4BIwEl8vTwL5Lh0D2109y.webp";
-        if (!imageCache[iconUrl]) {
+        if (!imageCache[descriptionIconUrl]) {
           const icon = new Image();
-          icon.src = iconUrl;
+          icon.src = descriptionIconUrl;
           icon.crossOrigin = "Anonymous";
-          icon.onload = () => (imageCache[iconUrl] = icon);
-          icon.onerror = () => (imageCache[iconUrl] = null);
+          icon.onload = () => (imageCache[descriptionIconUrl] = icon);
+          icon.onerror = () => (imageCache[descriptionIconUrl] = null);
         }
         if (homeIconUrl && !imageCache[homeIconUrl]) {
           const homeIcon = new Image();
@@ -390,7 +391,7 @@
         const imageAreaHeight = height * 0.33;
         const currentQuestion = quizQuestions[currentRound] || {};
         const image = imageCache[currentQuestion.image];
-        const imageSize = Math.min(imageAreaHeight * 0.9, width * 1.5);
+        const imageSize = Math.min(imageAreaHeight * QUESTION_IMAGE_SIZE_MULTIPLIER, width * 0.5); // Adjustable size
         
         if (image && image.complete && image.naturalWidth > 0) {
           const imageX = (width - imageSize) / 2;
@@ -452,7 +453,7 @@
 
         if (feedbackTimer > 0) {
           const isCorrectAnswer = selectedAnswer === currentQuestion.answer;
-          ctx.fillStyle = isCorrectAnswer ? "rgba(100, 2, 53, 0.8)" : "rgba(125, 7, 7, 0.9)"; // Updated colors
+          ctx.fillStyle = isCorrectAnswer ? "rgba(100, 2, 53, 0.8)" : "rgba(125, 7, 7, 0.9)";
           const overlayHeight = height * 0.4;
           ctx.fillRect(10, buttonYStart, width - 20, overlayHeight);
 
@@ -461,7 +462,13 @@
           ctx.fillText(currentQuestion.answer || "უცნობი", width / 2, buttonYStart + height * 0.05);
 
           ctx.font = `${Math.min(Math.max(height * 0.025, 14), 22)}px 'Poppins'`;
-          wrapText(ctx, currentQuestion.description || "აღწერა არ არის", width / 2, buttonYStart + overlayHeight / 2, width - 40, height * 0.03);
+          const descriptionY = buttonYStart + overlayHeight / 2;
+          const iconSize = Math.min(height * 0.04, 24);
+          const descriptionIcon = imageCache[descriptionIconUrl];
+          if (descriptionIcon && descriptionIcon.complete) {
+            ctx.drawImage(descriptionIcon, width / 2 - iconSize / 2 - 100, descriptionY - iconSize / 2, iconSize, iconSize);
+          }
+          wrapText(ctx, currentQuestion.description || "აღწერა არ არის", width / 2, descriptionY, width - 40 - iconSize - 10, height * 0.03);
           feedbackTimer--;
         }
 
@@ -483,7 +490,7 @@
         const imageAreaHeight = height * 0.33;
         const currentQuestion = quizQuestions[currentRound] || {};
         const image = imageCache[currentQuestion.image];
-        const imageSize = Math.min(imageAreaHeight * 0.9, width * 0.5);
+        const imageSize = Math.min(imageAreaHeight * QUESTION_IMAGE_SIZE_MULTIPLIER, width * 0.5); // Adjustable size
         
         if (image && image.complete) {
           const imageX = (width - imageSize) / 2;
@@ -518,7 +525,13 @@
         ctx.fillText(currentQuestion.answer || "უცნობი", width / 2, overlayYStart + height * 0.05);
 
         ctx.font = `${Math.min(Math.max(height * 0.025, 14), 22)}px 'Poppins'`;
-        wrapText(ctx, currentQuestion.description || "აღწერა არ არის", width / 2, overlayYStart + overlayHeight / 2, width - 40, height * 0.03);
+        const descriptionY = overlayYStart + overlayHeight / 2;
+        const iconSize = Math.min(height * 0.04, 24);
+        const descriptionIcon = imageCache[descriptionIconUrl];
+        if (descriptionIcon && descriptionIcon.complete) {
+          ctx.drawImage(descriptionIcon, width / 2 - iconSize / 2 - 100, descriptionY - iconSize / 2, iconSize, iconSize);
+        }
+        wrapText(ctx, currentQuestion.description || "აღწერა არ არის", width / 2, descriptionY, width - 40 - iconSize - 10, height * 0.03);
 
         const buttonHeight = Math.min(Math.max(height * 0.08, 40), 70);
         const buttonWidth = 120;

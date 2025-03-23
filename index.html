@@ -37,7 +37,7 @@
         background-blend-mode: overlay;
         display: none;
         letter-spacing: 0.5px;
-        touch-action: none; /* Prevent default touch behaviors */
+        touch-action: none;
       }
       #category-screen, #start-screen {
         position: absolute;
@@ -250,6 +250,9 @@
       const gameCategoryBtn = document.getElementById("game-category");
       const learnCategoryBtn = document.getElementById("learn-category");
 
+      // Customizable home icon URL (set your image URL here)
+      const homeIconUrl = "https://example.com/your-custom-home-icon.png"; // Replace with your URL or leave empty for default
+
       let currentRound = 0;
       let score = 0;
       let wrongCount = 0;
@@ -284,6 +287,14 @@
           icon.crossOrigin = "Anonymous";
           icon.onload = () => (imageCache[iconUrl] = icon);
           icon.onerror = () => (imageCache[iconUrl] = null);
+        }
+        // Preload custom home icon if provided
+        if (homeIconUrl && !imageCache[homeIconUrl]) {
+          const homeIcon = new Image();
+          homeIcon.src = homeIconUrl;
+          homeIcon.crossOrigin = "Anonymous";
+          homeIcon.onload = () => (imageCache[homeIconUrl] = homeIcon);
+          homeIcon.onerror = () => (imageCache[homeIconUrl] = null);
         }
       }
 
@@ -462,11 +473,16 @@
           feedbackTimer--;
         }
 
-        // Home icon (no background)
+        // Custom home icon
         const homeButtonSize = Math.min(height * 0.06, 40);
-        ctx.fillStyle = "#0288d1";
-        ctx.font = `${Math.min(Math.max(height * 0.03, 16), 24)}px 'Poppins'`;
-        ctx.fillText("🏠", width - homeButtonSize / 2 - 10, 10 + homeButtonSize / 2);
+        const homeIcon = imageCache[homeIconUrl];
+        if (homeIcon && homeIcon.complete && homeIcon.naturalWidth > 0) {
+          ctx.drawImage(homeIcon, width - homeButtonSize - 10, 10, homeButtonSize, homeButtonSize);
+        } else {
+          ctx.fillStyle = "#0288d1";
+          ctx.font = `${Math.min(Math.max(height * 0.03, 16), 24)}px 'Poppins'`;
+          ctx.fillText("🏠", width - homeButtonSize / 2 - 10, 10 + homeButtonSize / 2);
+        }
 
         animationFrameId = requestAnimationFrame(drawGame);
       }
@@ -574,11 +590,16 @@
         ctx.font = `${Math.min(Math.max(height * 0.025, 16), 24)}px 'Poppins'`;
         ctx.fillText("შემდეგი", width / 2 + buttonWidth / 2 + 10, buttonY + buttonHeight / 2);
 
-        // Home icon (no background)
+        // Custom home icon
         const homeButtonSize = Math.min(height * 0.06, 40);
-        ctx.fillStyle = "#0288d1";
-        ctx.font = `${Math.min(Math.max(height * 0.03, 16), 24)}px 'Poppins'`;
-        ctx.fillText("🏠", width - homeButtonSize / 2 - 10, 10 + homeButtonSize / 2);
+        const homeIcon = imageCache[homeIconUrl];
+        if (homeIcon && homeIcon.complete && homeIcon.naturalWidth > 0) {
+          ctx.drawImage(homeIcon, width - homeButtonSize - 10, 10, homeButtonSize, homeButtonSize);
+        } else {
+          ctx.fillStyle = "#0288d1";
+          ctx.font = `${Math.min(Math.max(height * 0.03, 16), 24)}px 'Poppins'`;
+          ctx.fillText("🏠", width - homeButtonSize / 2 - 10, 10 + homeButtonSize / 2);
+        }
 
         animationFrameId = requestAnimationFrame(drawLearn);
       }
@@ -660,7 +681,7 @@
         const width = canvas.width / scaleFactor;
         const height = canvas.height / scaleFactor;
 
-        console.log(`Touch/Click at: (${x}, ${y})`); // Debug log
+        console.log(`Touch/Click at: (${x}, ${y})`);
 
         // Home button interaction
         const homeButtonSize = Math.min(height * 0.06, 40);

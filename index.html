@@ -415,7 +415,7 @@
 
         if (feedbackTimer > 0) {
           const isCorrectAnswer = selectedAnswer === currentQuestion.answer;
-          ctx.fillStyle = isCorrectAnswer ? "rgba(rgba(100, 2, 53, 0.8))" : "rgba(125, 7, 7, 0.9)"; // Green for correct, red for wrong
+          ctx.fillStyle = isCorrectAnswer ? "rgba(rgba(100, 2, 53, 0.8)" : "rgba(125, 7, 7, 0.9)"; // Green for correct, red for wrong
           const overlayHeight = 3 * (buttonHeight + buttonSpacing);
           ctx.fillRect(10, buttonYStart, width - 20, overlayHeight);
 
@@ -675,7 +675,7 @@
         drawGame();
 
         setTimeout(() => {
-          if (wrongCount >= 3) {
+          if (wrongCount >= 1) {
             endGame("ძალიან ბევრი არასწორი პასუხი!");
           } else if (currentRound + 1 < totalRounds) {
             currentRound++;

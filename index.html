@@ -1,117 +1,831 @@
-<script>
-  // ... (previous constants and variable declarations remain unchanged)
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Japanese Candles Quiz - Modern</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Noto+Sans+Georgian:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Poppins", sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: linear-gradient(145deg, #e0f7fa, #80deea), url('https://www.transparenttextures.com/patterns/paper.png');
+        background-blend-mode: overlay;
+        overflow: hidden;
+      }
+      #game-container {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      #game-canvas {
+        width: 90vw;
+        height: 90vh;
+        max-width: 1200px;
+        max-height: 900px;
+        border-radius: 25px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        background: url('https://www.transparenttextures.com/patterns/rice-paper.png'), #ffffff;
+        background-blend-mode: overlay;
+        display: none;
+        letter-spacing: 0.5px;
+        touch-action: none;
+      }
+      #category-screen, #start-screen {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(145deg, #e0f7fa, #80deea);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 20px;
+        border-radius: 25px;
+        box-sizing: border-box;
+      }
+      #category-screen.learning-mode {
+        background: linear-gradient(145deg, #c8e6c9, #81c784);
+      }
+      #category-screen h1, #start-screen h1 {
+        font-size: clamp(1.8rem, 5vw, 3.5rem);
+        color: #01579b;
+        margin-bottom: 30px;
+        font-weight: 600;
+        text-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      }
+      .category-button, #start-button {
+        width: clamp(140px, 22vw, 240px);
+        height: clamp(50px, 9vw, 70px);
+        background: linear-gradient(90deg, #0288d1, #4fc3f7);
+        color: #fff;
+        border: none;
+        border-radius: 50px;
+        font-size: clamp(1rem, 3vw, 1.6rem);
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 8px 20px rgba(2, 136, 209, 0.3);
+        transition: all 0.3s ease, transform 0.2s ease-in-out;
+        margin: 15px;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .category-button::after, #start-button::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.6s ease, height 0.6s ease;
+      }
+      .category-button:hover::after, #start-button:hover::after {
+        width: 200%;
+        height: 200%;
+      }
+      .category-button:hover, #start-button:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 12px 30px rgba(2, 136, 209, 0.5);
+      }
+      .category-button span {
+        margin-right: 10px;
+        font-size: clamp(1.2rem, 3.5vw, 2rem);
+      }
+      #final-screen {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(145deg, #ff8a80, #f06292);
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 20px;
+        border-radius: 25px;
+        box-sizing: border-box;
+      }
+      #final-screen h2 {
+        font-size: clamp(1.8rem, 5vw, 3.5rem);
+        color: #fff;
+        margin-bottom: 30px;
+        font-weight: 600;
+        text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      #final-stats {
+        background: rgba(255, 255, 255, 0.95);
+        padding: clamp(15px, 2.5vw, 30px);
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        color: #d81b60;
+        font-size: clamp(1rem, 2.5vw, 1.6rem);
+        line-height: 1.6;
+      }
+      #high-score {
+        font-size: clamp(1rem, 2.5vw, 1.6rem);
+        color: #fff;
+        margin: 15px 0;
+        font-weight: 400;
+      }
+      #restart {
+        width: clamp(120px, 18vw, 180px);
+        height: clamp(45px, 7vw, 60px);
+        background: linear-gradient(90deg, #0288d1, #4fc3f7);
+        color: #fff;
+        border: none;
+        border-radius: 50px;
+        font-size: clamp(1rem, 2.5vw, 1.4rem);
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 8px 20px rgba(2, 136, 209, 0.3);
+        transition: all 0.3s ease, transform 0.2s ease-in-out;
+        position: relative;
+        overflow: hidden;
+      }
+      #restart::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.6s ease, height 0.6s ease;
+      }
+      #restart:hover::after {
+        width: 200%;
+        height: 200%;
+      }
+      #restart:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 12px 30px rgba(2, 136, 209, 0.5);
+      }
+      @keyframes shake {
+        0% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        50% { transform: translateX(5px); }
+        75% { transform: translateX(-5px); }
+        100% { transform: translateX(0); }
+      }
+    </style>
+    <script src="https://unpkg.com/@farcade/game-sdk@latest/dist/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  </head>
+  <body>
+    <div id="game-container">
+      <canvas id="game-canvas"></canvas>
+      <div id="category-screen">
+        <h1>აირჩიე კატეგორია</h1>
+        <button class="category-button" id="game-category">
+          <span>🎮</span> თამაში
+        </button>
+        <button class="category-button" id="learn-category">
+          <span>📚</span> სწავლა
+        </button>
+      </div>
+      <div id="start-screen" style="display: none;">
+        <h1>იაპონური სანთლები!</h1>
+        <button id="start-button">თამაშის დაწყება</button>
+      </div>
+      <div id="final-screen">
+        <h2>თამაში დასრულდა!</h2>
+        <div id="final-stats"></div>
+        <div id="high-score"></div>
+        <button id="restart">თავიდან თამაში</button>
+      </div>
+    </div>
 
-  const FEEDBACK_DURATION = 240; // 4 seconds at 60 FPS (4 * 60)
+    <script>
+      const questionPool = [
+        {
+          question: "კითხვა? ",
+          answer: "კალია",
+          options: ["გრძელფეხა დოჯი", "სასიკვდილო დოჯი", "კალია"],
+          image: "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/bb1-DKDv7KiUtOSstb5xsFG2mvRcqkWiNA.jpeg?bRUv",
+          description: "დოჯის იშვიათი სტრუქტურა, ხშირად კალიას უწოდებენ, მისი სტრუქტურიდან გამომდინარე. სანთელი იქმნება ტალღის ქვედა ნაწილში და აღმავალ ტალღაზე მიგვანიშნებს..",
+        },
+        {
+          question: "კითხვა? ",
+          answer: "სასიკვდილო დოჯი",
+          options: ["კალია", "სასიკვდილო დოჯი", "გრძელფეხა დოჯი"],
+          image: "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/gravestone-WZn634IGj8HyRhLidmWqsrJIcE8KSO.jpeg?wlAd",
+          description: "ყველაზე აგრესიული ბეარ სცენარის საწყისი, ყველაზე ნეგატიური სანთელი რომელიც გვანიშნებს ტრენდის შემოტრიალებაზე.",
+        },
+      ];
 
-  // ... (preloadImages, resizeCanvas, shuffle, initGame, initLearn remain unchanged)
+      const correctSound = new Audio("https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/correct-zZhYrVGunWGwLmLL0aEvGRPwhzCRLS.wav");
+      const wrongSound = new Audio("https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/wrong-U7roBiQvNu0RarKFItCsIPhgzN8QZz.mpeg");
 
-  function drawGame() {
-    if (!isGameActive || mode !== "game") {
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      return;
-    }
-    const width = canvas.width / scaleFactor;
-    const height = canvas.height / scaleFactor;
-    ctx.clearRect(0, 0, width, height);
+      const canvas = document.getElementById("game-canvas");
+      const ctx = canvas.getContext("2d");
+      const categoryScreen = document.getElementById("category-screen");
+      const startScreen = document.getElementById("start-screen");
+      const startButton = document.getElementById("start-button");
+      const finalScreen = document.getElementById("final-screen");
+      const finalStatsEl = document.getElementById("final-stats");
+      const highScoreEl = document.getElementById("high-score");
+      const restartBtn = document.getElementById("restart");
+      const gameCategoryBtn = document.getElementById("game-category");
+      const learnCategoryBtn = document.getElementById("learn-category");
 
-    // ... (rest of drawGame remains unchanged until feedbackTimer logic)
+      const homeIconUrl = "https://ta3bviqjtxy1kv7x.public.blob.vercel-storage.com/sticker_cropped-YRsNVUTyZhP26sndK3A421L32kVly2.webp";
 
-    if (feedbackTimer > 0) {
-      const isCorrectAnswer = selectedAnswer === currentQuestion.answer;
-      ctx.fillStyle = isCorrectAnswer ? "rgba(76, 175, 80, 0.8)" : "rgba(244, 67, 54, 0.9)";
-      const overlayHeight = 3 * (buttonHeight + buttonSpacing);
-      ctx.fillRect(10, buttonYStart, width - 20, overlayHeight);
+      let currentRound = 0;
+      let score = 0;
+      let wrongCount = 0;
+      let correctCount = 0;
+      const totalRounds = 30;
+      let quizQuestions = [];
+      let selectedAnswer = null;
+      let feedbackTimer = 0;
+      let isGameActive = false;
+      let scaleFactor = 1;
+      let imageCache = {};
+      let mode = null;
+      let imageZoom = 0;
+      let shakeOffset = 0;
+      let shakeTimer = 0;
+      let animationFrameId = null;
+      const FEEDBACK_DURATION = 240; // 4 seconds at 60 FPS
 
-      const iconSize = height * 0.09;
-      const iconX = width - 20 - iconSize - 15;
-      const iconY = buttonYStart + overlayHeight - iconSize - 15;
-      const icon = imageCache["https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/sticker-uhB1G0rlyrpomrlXxFVTt8KLT4aGTU.webp?SGHY"];
-      if (icon && icon.complete) ctx.drawImage(icon, iconX, iconY, iconSize, iconSize);
-
-      ctx.fillStyle = "#fff";
-      ctx.font = `${Math.min(Math.max(height * 0.03, 16), 24)}px 'Poppins'`;
-      ctx.fillText(currentQuestion.answer || "უცნობი", width / 2, buttonYStart + height * 0.05);
-
-      ctx.font = `${Math.min(Math.max(height * 0.025, 14), 22)}px 'Poppins'`;
-      wrapText(ctx, currentQuestion.description || "აღწერა არ არის ხელმისაწვდომი", width / 2, buttonYStart + overlayHeight / 2, width - 40, height * 0.03);
-      feedbackTimer--; // Decrement each frame
-    }
-
-    // ... (rest of drawGame remains unchanged)
-
-    animationFrameId = requestAnimationFrame(drawGame);
-  }
-
-  // ... (drawLearn, wrapText, calculateScore, endGame, endLearn, returnToHome remain unchanged)
-
-  function handleInteraction(x, y) {
-    if (!isGameActive) return;
-    const width = canvas.width / scaleFactor;
-    const height = canvas.height / scaleFactor;
-
-    // Home button interaction
-    const homeButtonSize = Math.min(height * 0.06, 40);
-    if (x >= width - homeButtonSize - 10 && x <= width - 10 && y >= 10 && y <= 10 + homeButtonSize) {
-      returnToHome();
-      return;
-    }
-
-    if (mode === "game" && feedbackTimer === 0) { // Only allow answer selection when feedbackTimer is 0
-      const buttonHeight = Math.min(Math.max(height * 0.08, 40), 70);
-      const buttonSpacing = height * 0.03;
-      const buttonYStart = height * 0.33 + height * 0.2;
-      const options = quizQuestions[currentRound]?.options || [];
-      options.forEach((option, idx) => {
-        const buttonY = buttonYStart + idx * (buttonHeight + buttonSpacing);
-        if (x >= 20 && x <= width - 20 && y >= buttonY && y <= buttonY + buttonHeight) {
-          handleAnswer(option);
+      function preloadImages() {
+        questionPool.forEach((q) => {
+          if (q.image && !imageCache[q.image]) {
+            const img = new Image();
+            img.src = q.image;
+            img.crossOrigin = "Anonymous";
+            img.onload = () => (imageCache[q.image] = img);
+            img.onerror = () => (imageCache[q.image] = null);
+          }
+        });
+        const iconUrl = "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/sticker-uhB1G0rlyrpomrlXxFVTt8KLT4aGTU.webp?SGHY";
+        if (!imageCache[iconUrl]) {
+          const icon = new Image();
+          icon.src = iconUrl;
+          icon.crossOrigin = "Anonymous";
+          icon.onload = () => (imageCache[iconUrl] = icon);
+          icon.onerror = () => (imageCache[iconUrl] = null);
         }
-      });
-    } else if (mode === "learn") {
-      // ... (learn mode interaction logic remains unchanged)
-    }
-  }
+        if (homeIconUrl && !imageCache[homeIconUrl]) {
+          const homeIcon = new Image();
+          homeIcon.src = homeIconUrl;
+          homeIcon.crossOrigin = "Anonymous";
+          homeIcon.onload = () => (imageCache[homeIconUrl] = homeIcon);
+          homeIcon.onerror = () => (imageCache[homeIconUrl] = null);
+        }
+      }
 
-  // ... (event listeners remain unchanged)
+      function resizeCanvas() {
+        const dpr = window.devicePixelRatio || 1;
+        const width = Math.min(window.innerWidth * 0.9, 1200);
+        const height = Math.min(window.innerHeight * 0.9, 900);
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        scaleFactor = dpr;
+        ctx.scale(dpr, dpr);
+        if (isGameActive) mode === "game" ? drawGame() : drawLearn();
+      }
 
-  function handleAnswer(option) {
-    if (feedbackTimer > 0) return;
-    const currentQuestion = quizQuestions[currentRound] || {};
-    selectedAnswer = option;
-    const points = calculateScore(option, currentQuestion.answer || 0, currentQuestion.options || [0, 0, 0]);
-    score += points;
+      window.addEventListener("resize", resizeCanvas);
+      window.addEventListener("orientationchange", resizeCanvas);
 
-    if (option === currentQuestion.answer) {
-      correctSound.play().catch(() => {});
-      correctCount++;
-      confetti({ particleCount: 30, spread: 50, origin: { y: 0.6 } });
-    } else {
-      wrongSound.play().catch(() => {});
-      wrongCount++;
-    }
+      function shuffle(array) {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+      }
 
-    feedbackTimer = FEEDBACK_DURATION; // Set to 4 seconds worth of frames
-    imageZoom = 0;
-    drawGame(); // Redraw immediately to show feedback
-
-    setTimeout(() => {
-      if (!isGameActive) return;
-      if (wrongCount >= 3) {
-        endGame("ძალიან ბევრი არასწორი პასუხი!");
-      } else if (currentRound + 1 < totalRounds) {
-        currentRound++;
+      function initGame() {
+        const baseQuestions = shuffle(questionPool);
+        quizQuestions = [];
+        while (quizQuestions.length < totalRounds) {
+          quizQuestions = quizQuestions.concat(shuffle([...baseQuestions]));
+        }
+        quizQuestions = quizQuestions.slice(0, totalRounds);
+        currentRound = 0;
+        score = 0;
+        wrongCount = 0;
+        correctCount = 0;
         selectedAnswer = null;
         feedbackTimer = 0;
+        isGameActive = true;
+        startScreen.style.display = "none";
+        canvas.style.display = "block";
+        finalScreen.style.display = "none";
+        resizeCanvas();
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        animationFrameId = requestAnimationFrame(drawGame);
+      }
+
+      function initLearn() {
+        quizQuestions = shuffle(questionPool);
+        currentRound = 0;
+        isGameActive = true;
+        categoryScreen.style.display = "none";
+        canvas.style.display = "block";
+        finalScreen.style.display = "none";
+        resizeCanvas();
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        animationFrameId = requestAnimationFrame(drawLearn);
+      }
+
+      function drawGame() {
+        if (!isGameActive || mode !== "game") {
+          if (animationFrameId) cancelAnimationFrame(animationFrameId);
+          return;
+        }
+        const width = canvas.width / scaleFactor;
+        const height = canvas.height / scaleFactor;
+        ctx.clearRect(0, 0, width, height);
+
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, width, height);
+
+        const imageAreaHeight = height * 0.33;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, width, imageAreaHeight);
+
+        const currentQuestion = quizQuestions[currentRound] || {};
+        const image = imageCache[currentQuestion.image];
+        const imageSize = Math.min(imageAreaHeight * 0.9, width * 0.5);
+        if (image && image.complete && image.naturalWidth > 0) {
+          const imageX = (width - imageSize) / 2;
+          const imageY = (imageAreaHeight - imageSize) / 2;
+          imageZoom = Math.min(imageZoom + 0.05, 1);
+          ctx.save();
+          ctx.translate(imageX + imageSize / 2, imageY + imageSize / 2);
+          ctx.scale(imageZoom, imageZoom);
+          ctx.drawImage(image, -imageSize / 2, -imageSize / 2, imageSize, imageSize);
+          ctx.restore();
+          ctx.strokeStyle = "#0288d1";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(imageX, imageY, imageSize, imageSize);
+        } else {
+          ctx.beginPath();
+          ctx.arc(width / 2, imageAreaHeight / 2, 20, 0, Math.PI * 2 * (Date.now() % 1000) / 1000);
+          ctx.strokeStyle = "#0288d1";
+          ctx.lineWidth = 3;
+          ctx.stroke();
+        }
+
+        ctx.fillStyle = "#f5f6fa";
+        ctx.fillRect(0, imageAreaHeight, width, height - imageAreaHeight);
+
+        ctx.fillStyle = "#0288d1";
+        ctx.font = `${Math.min(Math.max(height * 0.03, 16), 24)}px 'Poppins'`;
+        ctx.textAlign = "center";
+        ctx.fillText(`ქულა: ${score} | რაუნდი: ${currentRound + 1}/${totalRounds}`, width / 2, imageAreaHeight + height * 0.03);
+
+        const candleWidth = (width - 20) / totalRounds;
+        for (let i = 0; i < totalRounds; i++) {
+          ctx.fillStyle = i <= currentRound ? "#ff8a80" : "#e0e0e0";
+          ctx.fillRect(10 + i * candleWidth, imageAreaHeight + height * 0.06, candleWidth - 2, height * 0.02);
+        }
+
+        ctx.fillStyle = "#01579b";
+        ctx.font = `${Math.min(Math.max(height * 0.035, 18), 28)}px 'Noto Sans Georgian'`;
+        wrapText(ctx, currentQuestion.question || "კითხვა მიუწვდომელია", width / 2, imageAreaHeight + height * 0.12, width - 40, height * 0.04);
+
+        const buttonHeight = Math.min(Math.max(height * 0.08, 40), 70);
+        const buttonSpacing = height * 0.03;
+        const buttonYStart = imageAreaHeight + height * 0.2;
+        const options = currentQuestion.options || [0, 0, 0];
+
+        if (feedbackTimer > 0 && selectedAnswer !== currentQuestion.answer && shakeTimer < 15) {
+          shakeOffset = Math.sin(shakeTimer * Math.PI * 2) * 5;
+          shakeTimer++;
+        } else {
+          shakeOffset = 0;
+          shakeTimer = 0;
+        }
+
+        options.forEach((option, idx) => {
+          const y = buttonYStart + idx * (buttonHeight + buttonSpacing);
+          const isCorrect = option === currentQuestion.answer;
+          const isSelected = option === selectedAnswer;
+          const x = 20 + (isSelected && feedbackTimer > 0 && !isCorrect ? shakeOffset : 0);
+
+          ctx.fillStyle = feedbackTimer > 0 && isCorrect ? "#4caf50" : feedbackTimer > 0 && isSelected && !isCorrect ? "#f44336" : "#ffffff";
+          if (feedbackTimer > 0 && isCorrect) {
+            ctx.shadowColor = "#4caf50";
+            ctx.shadowBlur = 20;
+          }
+          ctx.shadowColor = "rgba(0, 0, 0, 0.15)";
+          ctx.shadowBlur = 8;
+          ctx.shadowOffsetY = 4;
+          ctx.beginPath();
+          ctx.roundRect(x, y, width - 40, buttonHeight, 15);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.shadowOffsetY = 0;
+
+          ctx.fillStyle = feedbackTimer > 0 && isCorrect ? "#fff" : "#0288d1";
+          ctx.font = `${Math.min(Math.max(height * 0.025, 16), 24)}px 'Poppins'`;
+          ctx.fillText(`${String.fromCharCode(65 + idx)}) ${option}`, width / 2, y + buttonHeight / 2);
+        });
+
+        if (feedbackTimer > 0) {
+          const isCorrectAnswer = selectedAnswer === currentQuestion.answer;
+          ctx.fillStyle = isCorrectAnswer ? "rgba(76, 175, 80, 0.8)" : "rgba(244, 67, 54, 0.9)";
+          const overlayHeight = 3 * (buttonHeight + buttonSpacing);
+          ctx.fillRect(10, buttonYStart, width - 20, overlayHeight);
+
+          const iconSize = height * 0.09;
+          const iconX = width - 20 - iconSize - 15;
+          const iconY = buttonYStart + overlayHeight - iconSize - 15;
+          const icon = imageCache["https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/sticker-uhB1G0rlyrpomrlXxFVTt8KLT4aGTU.webp?SGHY"];
+          if (icon && icon.complete) ctx.drawImage(icon, iconX, iconY, iconSize, iconSize);
+
+          ctx.fillStyle = "#fff";
+          ctx.font = `${Math.min(Math.max(height * 0.03, 16), 24)}px 'Poppins'`;
+          ctx.fillText(currentQuestion.answer || "უცნობი", width / 2, buttonYStart + height * 0.05);
+
+          ctx.font = `${Math.min(Math.max(height * 0.025, 14), 22)}px 'Poppins'`;
+          wrapText(ctx, currentQuestion.description || "აღწერა არ არის ხელმისაწვდომი", width / 2, buttonYStart + overlayHeight / 2, width - 40, height * 0.03);
+          feedbackTimer--;
+        }
+
+        const homeButtonSize = Math.min(height * 0.06, 40);
+        const homeIcon = imageCache[homeIconUrl];
+        if (homeIcon && homeIcon.complete && homeIcon.naturalWidth > 0) {
+          ctx.drawImage(homeIcon, width - homeButtonSize - 10, 10, homeButtonSize, homeButtonSize);
+        } else {
+          ctx.fillStyle = "#0288d1";
+          ctx.font = `${Math.min(Math.max(height * 0.03, 16), 24)}px 'Poppins'`;
+          ctx.fillText("🏠", width - homeButtonSize / 2 - 10, 10 + homeButtonSize / 2);
+        }
+
+        animationFrameId = requestAnimationFrame(drawGame);
+      }
+
+      function drawLearn() {
+        if (!isGameActive || mode !== "learn") {
+          if (animationFrameId) cancelAnimationFrame(animationFrameId);
+          return;
+        }
+        const width = canvas.width / scaleFactor;
+        const height = canvas.height / scaleFactor;
+        ctx.clearRect(0, 0, width, height);
+
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, width, height);
+
+        const imageAreaHeight = height * 0.33;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, width, imageAreaHeight);
+
+        const currentQuestion = quizQuestions[currentRound] || {};
+        const image = imageCache[currentQuestion.image];
+        const imageSize = Math.min(imageAreaHeight * 0.9, width * 0.5);
+        if (image && image.complete) {
+          const imageX = (width - imageSize) / 2;
+          const imageY = (imageAreaHeight - imageSize) / 2;
+          imageZoom = Math.min(imageZoom + 0.05, 1);
+          ctx.save();
+          ctx.translate(imageX + imageSize / 2, imageY + imageSize / 2);
+          ctx.scale(imageZoom, imageZoom);
+          ctx.drawImage(image, -imageSize / 2, -imageSize / 2, imageSize, imageSize);
+          ctx.restore();
+          ctx.strokeStyle = "#0288d1";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(imageX, imageY, imageSize, imageSize);
+        } else {
+          ctx.beginPath();
+          ctx.arc(width / 2, imageAreaHeight / 2, 20, 0, Math.PI * 2 * (Date.now() % 1000) / 1000);
+          ctx.strokeStyle = "#0288d1";
+          ctx.lineWidth = 3;
+          ctx.stroke();
+        }
+
+        ctx.fillStyle = "#f5f6fa";
+        ctx.fillRect(0, imageAreaHeight, width, height - imageAreaHeight);
+
+        ctx.fillStyle = "#0288d1";
+        ctx.font = `${Math.min(Math.max(height * 0.03, 16), 24)}px 'Poppins'`;
+        ctx.textAlign = "center";
+        ctx.fillText(`სლაიდი: ${currentRound + 1}/${quizQuestions.length}`, width / 2, imageAreaHeight + height * 0.03);
+
+        ctx.fillStyle = "#01579b";
+        ctx.font = `${Math.min(Math.max(height * 0.035, 18), 28)}px 'Noto Sans Georgian'`;
+        wrapText(ctx, currentQuestion.question || "კითხვა მიუწვდომელია", width / 2, imageAreaHeight + height * 0.12, width - 40, height * 0.04);
+
+        const overlayHeight = height * 0.4;
+        const overlayYStart = imageAreaHeight + height * 0.2;
+        ctx.fillStyle = "rgba(76, 175, 80, 0.9)";
+        ctx.fillRect(10, overlayYStart, width - 20, overlayHeight);
+
+        const iconSize = height * 0.09;
+        const iconX = width - 20 - iconSize - 15;
+        const iconY = overlayYStart + overlayHeight - iconSize - 15;
+        const icon = imageCache["https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/sticker-uhB1G0rlyrpomrlXxFVTt8KLT4aGTU.webp?SGHY"];
+        if (icon && icon.complete) ctx.drawImage(icon, iconX, iconY, iconSize, iconSize);
+
+        ctx.fillStyle = "#fff";
+        ctx.font = `${Math.min(Math.max(height * 0.03, 16), 24)}px 'Poppins'`;
+        ctx.fillText(currentQuestion.answer || "უცნობი", width / 2, overlayYStart + height * 0.05);
+
+        ctx.font = `${Math.min(Math.max(height * 0.025, 14), 22)}px 'Poppins'`;
+        wrapText(ctx, currentQuestion.description || "აღწერა არ არის ხელმისაწვდომი", width / 2, overlayYStart + overlayHeight / 2, width - 40, height * 0.03);
+
+        const buttonHeight = Math.min(Math.max(height * 0.08, 40), 70);
+        const buttonWidth = 120;
+        const buttonY = height - buttonHeight - 20;
+
+        if (currentRound > 0) {
+          ctx.fillStyle = "#0288d1";
+          ctx.shadowColor = "rgba(0, 0, 0, 0.15)";
+          ctx.shadowBlur = 8;
+          ctx.shadowOffsetY = 4;
+          ctx.beginPath();
+          ctx.roundRect(width / 2 - buttonWidth - 10, buttonY, buttonWidth, buttonHeight, 15);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.shadowOffsetY = 0;
+          ctx.fillStyle = "#fff";
+          ctx.font = `${Math.min(Math.max(height * 0.025, 16), 24)}px 'Poppins'`;
+          ctx.fillText("უკან", width / 2 - buttonWidth / 2 - 10, buttonY + buttonHeight / 2);
+        }
+
+        ctx.fillStyle = "#0288d1";
+        ctx.shadowColor = "rgba(0, 0, 0, 0.15)";
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetY = 4;
+        ctx.beginPath();
+        ctx.roundRect(width / 2 + 10, buttonY, buttonWidth, buttonHeight, 15);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.fillStyle = "#fff";
+        ctx.font = `${Math.min(Math.max(height * 0.025, 16), 24)}px 'Poppins'`;
+        ctx.fillText("შემდეგი", width / 2 + buttonWidth / 2 + 10, buttonY + buttonHeight / 2);
+
+        const homeButtonSize = Math.min(height * 0.06, 40);
+        const homeIcon = imageCache[homeIconUrl];
+        if (homeIcon && homeIcon.complete && homeIcon.naturalWidth > 0) {
+          ctx.drawImage(homeIcon, width - homeButtonSize - 10, 10, homeButtonSize, homeButtonSize);
+        } else {
+          ctx.fillStyle = "#0288d1";
+          ctx.font = `${Math.min(Math.max(height * 0.03, 16), 24)}px 'Poppins'`;
+          ctx.fillText("🏠", width - homeButtonSize / 2 - 10, 10 + homeButtonSize / 2);
+        }
+
+        animationFrameId = requestAnimationFrame(drawLearn);
+      }
+
+      function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+        const words = (text || "").split(" ");
+        let line = "";
+        let lines = [];
+        for (let n = 0; n < words.length; n++) {
+          const testLine = line + words[n] + " ";
+          const metrics = ctx.measureText(testLine);
+          if (metrics.width > maxWidth && n > 0) {
+            lines.push(line);
+            line = words[n] + " ";
+          } else {
+            line = testLine;
+          }
+        }
+        lines.push(line);
+        lines.forEach((line, i) => {
+          ctx.fillText(line, x, y + (i - (lines.length - 1) / 2) * lineHeight);
+        });
+      }
+
+      function calculateScore(guess, answer, options) {
+        if (typeof guess === "string" && typeof answer === "string") {
+          return guess === answer ? 100 : 0;
+        }
+        const diff = Math.abs(guess - answer);
+        const maxDiff = Math.max(...options) - Math.min(...options);
+        return Math.max(0, 100 - Math.floor((diff / (maxDiff / 2)) * 100));
+      }
+
+      function endGame(message = null) {
+        isGameActive = false;
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        const maxScore = totalRounds * 100;
+        const accuracy = correctCount + wrongCount > 0 ? Math.round((correctCount / (correctCount + wrongCount)) * 100) : 0;
+        const stats = `
+                ქულა: ${score} / ${maxScore}<br>
+                სწორი პასუხები: ${correctCount}<br>
+                არასწორი პასუხები: ${wrongCount}<br>
+                სიზუსტე: ${accuracy}%
+            `;
+        finalStatsEl.innerHTML = message || stats;
+        let highScore = localStorage.getItem("highScore") || 0;
+        if (score > highScore) {
+          highScore = score;
+          localStorage.setItem("highScore", highScore);
+          confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        }
+        highScoreEl.textContent = `მაქსიმალური ქულა: ${highScore}`;
+        canvas.style.display = "none";
+        finalScreen.style.display = "flex";
+      }
+
+      function endLearn() {
+        isGameActive = false;
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        finalStatsEl.innerHTML = "სწავლა დასრულდა!";
+        highScoreEl.textContent = "";
+        canvas.style.display = "none";
+        finalScreen.style.display = "flex";
+      }
+
+      function returnToHome() {
+        isGameActive = false;
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        mode = null;
+        categoryScreen.classList.remove("learning-mode");
+        categoryScreen.style.display = "flex";
+        canvas.style.display = "none";
+        finalScreen.style.display = "none";
+        startScreen.style.display = "none";
+      }
+
+      function handleInteraction(x, y) {
+        if (!isGameActive) return;
+        const width = canvas.width / scaleFactor;
+        const height = canvas.height / scaleFactor;
+
+        console.log(`Touch/Click at: (${x}, ${y})`);
+
+        const homeButtonSize = Math.min(height * 0.06, 40);
+        if (x >= width - homeButtonSize - 10 && x <= width - 10 && y >= 10 && y <= 10 + homeButtonSize) {
+          console.log("Home button clicked");
+          returnToHome();
+          return;
+        }
+
+        if (mode === "game" && feedbackTimer === 0) {
+          const buttonHeight = Math.min(Math.max(height * 0.08, 40), 70);
+          const buttonSpacing = height * 0.03;
+          const buttonYStart = height * 0.33 + height * 0.2;
+          const options = quizQuestions[currentRound]?.options || [];
+          options.forEach((option, idx) => {
+            const buttonY = buttonYStart + idx * (buttonHeight + buttonSpacing);
+            if (x >= 20 && x <= width - 20 && y >= buttonY && y <= buttonY + buttonHeight) {
+              console.log(`Option ${idx} clicked: ${option}`);
+              handleAnswer(option);
+            }
+          });
+        } else if (mode === "learn") {
+          const buttonHeight = Math.min(Math.max(height * 0.08, 40), 70);
+          const buttonWidth = 120;
+          const buttonY = height - buttonHeight - 20;
+
+          if (currentRound > 0 && x >= width / 2 - buttonWidth - 10 && x <= width / 2 - 10 && y >= buttonY && y <= buttonY + buttonHeight) {
+            console.log("Back button clicked");
+            handleBackSlide();
+          }
+          if (x >= width / 2 + 10 && x <= width / 2 + buttonWidth + 10 && y >= buttonY && y <= buttonY + buttonHeight) {
+            console.log("Next button clicked");
+            handleNextSlide();
+          }
+        }
+      }
+
+      canvas.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        const x = (touch.clientX - rect.left) * (canvas.width / scaleFactor / rect.width);
+        const y = (touch.clientY - rect.top) * (canvas.height / scaleFactor / rect.height);
+        handleInteraction(x, y);
+      });
+
+      canvas.addEventListener("touchend", (e) => {
+        e.preventDefault();
+        const touch = e.changedTouches[0];
+        const rect = canvas.getBoundingClientRect();
+        const x = (touch.clientX - rect.left) * (canvas.width / scaleFactor / rect.width);
+        const y = (touch.clientY - rect.top) * (canvas.height / scaleFactor / rect.height);
+        handleInteraction(x, y);
+      });
+
+      canvas.addEventListener("click", (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = (e.clientX - rect.left) * (canvas.width / scaleFactor / rect.width);
+        const y = (e.clientY - rect.top) * (canvas.height / scaleFactor / rect.height);
+        handleInteraction(x, y);
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (!isGameActive || feedbackTimer > 0 || mode !== "game") return;
+        const options = quizQuestions[currentRound]?.options || [];
+        let idx = -1;
+        if (e.key === "a" || e.key === "A") idx = 0;
+        if (e.key === "b" || e.key === "B") idx = 1;
+        if (e.key === "c" || e.key === "C") idx = 2;
+        if (idx >= 0 && idx < options.length) handleAnswer(options[idx]);
+      });
+
+      function handleAnswer(option) {
+        if (feedbackTimer > 0) return;
+        const currentQuestion = quizQuestions[currentRound] || {};
+        selectedAnswer = option;
+        const points = calculateScore(option, currentQuestion.answer || 0, currentQuestion.options || [0, 0, 0]);
+        score += points;
+
+        if (option === currentQuestion.answer) {
+          correctSound.play().catch(() => {});
+          correctCount++;
+          confetti({ particleCount: 30, spread: 50, origin: { y: 0.6 } });
+        } else {
+          wrongSound.play().catch(() => {});
+          wrongCount++;
+        }
+
+        feedbackTimer = FEEDBACK_DURATION;
         imageZoom = 0;
         drawGame();
-      } else {
-        endGame();
+
+        setTimeout(() => {
+          if (!isGameActive) return;
+          if (wrongCount >= 3) {
+            endGame("ძალიან ბევრი არასწორი პასუხი!");
+          } else if (currentRound + 1 < totalRounds) {
+            currentRound++;
+            selectedAnswer = null;
+            feedbackTimer = 0;
+            imageZoom = 0;
+            drawGame();
+          } else {
+            endGame();
+          }
+        }, 4000);
       }
-    }, 4000); // Wait 4 seconds (4000ms) before moving to next question
-  }
 
-  // ... (handleNextSlide, handleBackSlide, event listeners remain unchanged)
+      function handleNextSlide() {
+        if (currentRound + 1 < quizQuestions.length) {
+          currentRound++;
+          imageZoom = 0;
+          drawLearn();
+        } else {
+          endLearn();
+        }
+      }
 
-  preloadImages();
-  resizeCanvas();
-</script>
+      function handleBackSlide() {
+        if (currentRound > 0) {
+          currentRound--;
+          imageZoom = 0;
+          drawLearn();
+        }
+      }
+
+      gameCategoryBtn.addEventListener("click", () => {
+        mode = "game";
+        categoryScreen.classList.remove("learning-mode");
+        categoryScreen.style.display = "none";
+        startScreen.style.display = "flex";
+      });
+
+      learnCategoryBtn.addEventListener("click", () => {
+        mode = "learn";
+        categoryScreen.classList.add("learning-mode");
+        initLearn();
+      });
+
+      startButton.addEventListener("click", initGame);
+
+      restartBtn.addEventListener("click", () => {
+        mode = null;
+        categoryScreen.classList.remove("learning-mode");
+        categoryScreen.style.display = "flex";
+        finalScreen.style.display = "none";
+      });
+
+      preloadImages();
+      resizeCanvas();
+    </script>
+  </body>
+</html>

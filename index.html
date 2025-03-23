@@ -37,6 +37,7 @@
         background-blend-mode: overlay;
         display: none;
         letter-spacing: 0.5px;
+        touch-action: none; /* Prevent default touch behaviors */
       }
       #category-screen, #start-screen {
         position: absolute;
@@ -659,9 +660,12 @@
         const width = canvas.width / scaleFactor;
         const height = canvas.height / scaleFactor;
 
+        console.log(`Touch/Click at: (${x}, ${y})`); // Debug log
+
         // Home button interaction
         const homeButtonSize = Math.min(height * 0.06, 40);
         if (x >= width - homeButtonSize - 10 && x <= width - 10 && y >= 10 && y <= 10 + homeButtonSize) {
+          console.log("Home button clicked");
           returnToHome();
           return;
         }
@@ -674,6 +678,7 @@
           options.forEach((option, idx) => {
             const buttonY = buttonYStart + idx * (buttonHeight + buttonSpacing);
             if (x >= 20 && x <= width - 20 && y >= buttonY && y <= buttonY + buttonHeight) {
+              console.log(`Option ${idx} clicked: ${option}`);
               handleAnswer(option);
             }
           });
@@ -684,10 +689,12 @@
 
           // Back button
           if (currentRound > 0 && x >= width / 2 - buttonWidth - 10 && x <= width / 2 - 10 && y >= buttonY && y <= buttonY + buttonHeight) {
+            console.log("Back button clicked");
             handleBackSlide();
           }
           // Next button
           if (x >= width / 2 + 10 && x <= width / 2 + buttonWidth + 10 && y >= buttonY && y <= buttonY + buttonHeight) {
+            console.log("Next button clicked");
             handleNextSlide();
           }
         }
@@ -697,15 +704,24 @@
         e.preventDefault();
         const touch = e.touches[0];
         const rect = canvas.getBoundingClientRect();
-        const x = (touch.clientX - rect.left) * (canvas.width / rect.width);
-        const y = (touch.clientY - rect.top) * (canvas.height / rect.height);
+        const x = (touch.clientX - rect.left) * (canvas.width / scaleFactor / rect.width);
+        const y = (touch.clientY - rect.top) * (canvas.height / scaleFactor / rect.height);
+        handleInteraction(x, y);
+      });
+
+      canvas.addEventListener("touchend", (e) => {
+        e.preventDefault();
+        const touch = e.changedTouches[0];
+        const rect = canvas.getBoundingClientRect();
+        const x = (touch.clientX - rect.left) * (canvas.width / scaleFactor / rect.width);
+        const y = (touch.clientY - rect.top) * (canvas.height / scaleFactor / rect.height);
         handleInteraction(x, y);
       });
 
       canvas.addEventListener("click", (e) => {
         const rect = canvas.getBoundingClientRect();
-        const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-        const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+        const x = (e.clientX - rect.left) * (canvas.width / scaleFactor / rect.width);
+        const y = (e.clientY - rect.top) * (canvas.height / scaleFactor / rect.height);
         handleInteraction(x, y);
       });
 

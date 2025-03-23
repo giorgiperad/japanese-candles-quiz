@@ -239,7 +239,7 @@
         {
           question: "რას ნიშნავს კალია/Dragonfly Doji?",
           answer: "კალია/Dragonfly Doji",
-          image: "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/bb1-DKDv7KiUtOSstb5xsFG2mvRcqkWiNA.jpeg?bRUv",
+          image: "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/bb1-DKDv7KiUtOSstb5xsFG2mvRcqkWiNA.jpeg?aRUv",
           description: "ეს არის დოჯის ტიპი, რომელიც მიუთითებს პოტენციურ აღმავალ ტრენდზე. იგი ხშირად ჩნდება ფასის დაბალ წერტილში და გამოიყურება როგორც გრძელი ქვედა ჩრდილი მცირე სხეულით.",
         },
         {
@@ -462,11 +462,11 @@
 
           ctx.font = `${Math.min(Math.max(height * 0.025, 14), 22)}px 'Poppins'`;
           const descriptionY = buttonYStart + overlayHeight / 2;
-          const iconSize = Math.min(height * 0.04, 54);
+          const iconSize = 50; // Set to 50px
           const descriptionIcon = imageCache[descriptionIconUrl];
           wrapText(ctx, currentQuestion.description || "აღწერა არ არის", width / 2, descriptionY, width - 40, height * 0.03);
           if (descriptionIcon && descriptionIcon.complete) {
-            ctx.drawImage(descriptionIcon, width - 50 - iconSize, buttonYStart + overlayHeight - iconSize - 10, iconSize, iconSize);
+            ctx.drawImage(descriptionIcon, width - 30 - iconSize, buttonYStart + overlayHeight - iconSize - 10, iconSize, iconSize);
           }
           feedbackTimer--;
         }
@@ -525,11 +525,11 @@
 
         ctx.font = `${Math.min(Math.max(height * 0.025, 14), 22)}px 'Poppins'`;
         const descriptionY = overlayYStart + overlayHeight / 2;
-        const iconSize = Math.min(height * 0.04, 54);
+        const iconSize = 50; // Set to 50px
         const descriptionIcon = imageCache[descriptionIconUrl];
         wrapText(ctx, currentQuestion.description || "აღწერა არ არის", width / 2, descriptionY, width - 40, height * 0.03);
         if (descriptionIcon && descriptionIcon.complete) {
-          ctx.drawImage(descriptionIcon, width - 50 - iconSize, overlayYStart + overlayHeight - iconSize - 10, iconSize, iconSize);
+          ctx.drawImage(descriptionIcon, width - 30 - iconSize, overlayYStart + overlayHeight - iconSize - 10, iconSize, iconSize);
         }
 
         const buttonHeight = Math.min(Math.max(height * 0.08, 40), 70);

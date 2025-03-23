@@ -220,19 +220,20 @@
     <script>
       const questionPool = [
         {
-          question: "ტექსტი ",
+          question: "რა არის ეს სანთელი?",
           answer: "კალია/Dragonfly Doji",
           options: ["გრძელფეხა დოჯი", "სასიკვდილო დოჯი", "კალია/Dragonfly Doji"],
           image: "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/bb1-DKDv7KiUtOSstb5xsFG2mvRcqkWiNA.jpeg?bRUv",
-          description: "დოჯის იშვიათი სტრუქტურა, ხშირად კალიას უწოდებენ, მისი სტრუქტურიდან გამომდინარე. სანთელი იქმნება ტალღის ქვედა ნაწილში და აღმავალ ტალღაზე მიგვანიშნებს..",
+          description: "დოჯის იშვიათი სტრუქტურა, ხშირად კალიას უწოდებენ, მისი სტრუქტურიდან გამომდინარე. სანთელი იქმნება ტალღის ქვედა ნაწილში და აღმავალ ტალღაზე მიგვანიშნებს.",
         },
         {
-          question: "ტექსტი ",
+          question: "რა არის ეს სანთელი?",
           answer: "სასიკვდილო დოჯი",
           options: ["კალია", "სასიკვდილო დოჯი", "გრძელფეხა დოჯი"],
           image: "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/gravestone-WZn634IGj8HyRhLidmWqsrJIcE8KSO.jpeg?wlAd",
           description: "ყველაზე აგრესიული ბეარ სცენარის საწყისი, ყველაზე ნეგატიური სანთელი რომელიც გვანიშნებს ტრენდის შემოტრიალებაზე.",
         },
+        // Add more unique questions as needed
       ];
 
       const correctSound = new Audio("https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/correct-zZhYrVGunWGwLmLL0aEvGRPwhzCRLS.wav");
@@ -268,7 +269,7 @@
       let shakeOffset = 0;
       let shakeTimer = 0;
       let animationFrameId = null;
-      const FEEDBACK_DURATION = 240; // 4 seconds at 60 FPS
+      const FEEDBACK_DURATION = 120; // 2 seconds at 60 FPS
 
       function preloadImages() {
         questionPool.forEach((q) => {
@@ -307,7 +308,6 @@
         canvas.height = height * dpr;
         scaleFactor = dpr;
         ctx.scale(dpr, dpr);
-        if (isGameActive) mode === "game" ? drawGame() : drawLearn();
       }
 
       window.addEventListener("resize", resizeCanvas);
@@ -340,8 +340,7 @@
         canvas.style.display = "block";
         finalScreen.style.display = "none";
         resizeCanvas();
-        if (animationFrameId) cancelAnimationFrame(animationFrameId);
-        animationFrameId = requestAnimationFrame(drawGame);
+        requestAnimationFrame(gameLoop);
       }
 
       function initLearn() {
@@ -352,15 +351,19 @@
         canvas.style.display = "block";
         finalScreen.style.display = "none";
         resizeCanvas();
-        if (animationFrameId) cancelAnimationFrame(animationFrameId);
-        animationFrameId = requestAnimationFrame(drawLearn);
+        requestAnimationFrame(gameLoop);
+      }
+
+      function gameLoop() {
+        if (!isGameActive) {
+          cancelAnimationFrame(animationFrameId);
+          return;
+        }
+        mode === "game" ? drawGame() : drawLearn();
+        animationFrameId = requestAnimationFrame(gameLoop);
       }
 
       function drawGame() {
-        if (!isGameActive || mode !== "game") {
-          if (animationFrameId) cancelAnimationFrame(animationFrameId);
-          return;
-        }
         const width = canvas.width / scaleFactor;
         const height = canvas.height / scaleFactor;
         ctx.clearRect(0, 0, width, height);
@@ -369,30 +372,19 @@
         ctx.fillRect(0, 0, width, height);
 
         const imageAreaHeight = height * 0.33;
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, width, imageAreaHeight);
-
         const currentQuestion = quizQuestions[currentRound] || {};
         const image = imageCache[currentQuestion.image];
         const imageSize = Math.min(imageAreaHeight * 0.9, width * 0.5);
+        
         if (image && image.complete && image.naturalWidth > 0) {
           const imageX = (width - imageSize) / 2;
           const imageY = (imageAreaHeight - imageSize) / 2;
           imageZoom = Math.min(imageZoom + 0.05, 1);
           ctx.save();
-          ctx.translate(imageX + imageSize / 2, imageY + imageSize / 2);
+          ctx.translate(imageX + imageSize / 2 + shakeOffset, imageY + imageSize / 2);
           ctx.scale(imageZoom, imageZoom);
           ctx.drawImage(image, -imageSize / 2, -imageSize / 2, imageSize, imageSize);
           ctx.restore();
-          ctx.strokeStyle = "#0288d1";
-          ctx.lineWidth = 2;
-          ctx.strokeRect(imageX, imageY, imageSize, imageSize);
-        } else {
-          ctx.beginPath();
-          ctx.arc(width / 2, imageAreaHeight / 2, 20, 0, Math.PI * 2 * (Date.now() % 1000) / 1000);
-          ctx.strokeStyle = "#0288d1";
-          ctx.lineWidth = 3;
-          ctx.stroke();
         }
 
         ctx.fillStyle = "#f5f6fa";
@@ -416,35 +408,26 @@
         const buttonHeight = Math.min(Math.max(height * 0.08, 40), 70);
         const buttonSpacing = height * 0.03;
         const buttonYStart = imageAreaHeight + height * 0.2;
-        const options = currentQuestion.options || [0, 0, 0];
+        const options = currentQuestion.options || [];
 
-        if (feedbackTimer > 0 && selectedAnswer !== currentQuestion.answer && shakeTimer < 15) {
-          shakeOffset = Math.sin(shakeTimer * Math.PI * 2) * 5;
-          shakeTimer++;
-        } else {
-          shakeOffset = 0;
-          shakeTimer = 0;
+        if (feedbackTimer > 0) {
+          shakeOffset = Math.sin(shakeTimer++ * 0.5) * 5;
+          if (shakeTimer > 15) shakeOffset = 0;
         }
 
         options.forEach((option, idx) => {
           const y = buttonYStart + idx * (buttonHeight + buttonSpacing);
           const isCorrect = option === currentQuestion.answer;
           const isSelected = option === selectedAnswer;
-          const x = 20 + (isSelected && feedbackTimer > 0 && !isCorrect ? shakeOffset : 0);
 
-          ctx.fillStyle = feedbackTimer > 0 && isCorrect ? "#4caf50" : feedbackTimer > 0 && isSelected && !isCorrect ? "#f44336" : "#ffffff";
-          if (feedbackTimer > 0 && isCorrect) {
-            ctx.shadowColor = "#4caf50";
-            ctx.shadowBlur = 20;
-          }
+          ctx.fillStyle = feedbackTimer > 0 && isCorrect ? "#4caf50" : 
+                         (feedbackTimer > 0 && isSelected && !isCorrect ? "#f44336" : "#ffffff");
           ctx.shadowColor = "rgba(0, 0, 0, 0.15)";
           ctx.shadowBlur = 8;
-          ctx.shadowOffsetY = 4;
           ctx.beginPath();
-          ctx.roundRect(x, y, width - 40, buttonHeight, 15);
+          ctx.roundRect(20 + shakeOffset, y, width - 40, buttonHeight, 15);
           ctx.fill();
           ctx.shadowBlur = 0;
-          ctx.shadowOffsetY = 0;
 
           ctx.fillStyle = feedbackTimer > 0 && isCorrect ? "#fff" : "#0288d1";
           ctx.font = `${Math.min(Math.max(height * 0.025, 16), 24)}px 'Poppins'`;
@@ -453,43 +436,27 @@
 
         if (feedbackTimer > 0) {
           const isCorrectAnswer = selectedAnswer === currentQuestion.answer;
-          ctx.fillStyle = isCorrectAnswer ? "rgba(rgba(100, 2, 53, 0.8))" : "rgba(125, 7, 7, 0.9)"; // Green for correct, red for wrong
-          const overlayHeight = 3 * (buttonHeight + buttonSpacing);
+          ctx.fillStyle = isCorrectAnswer ? "rgba(76, 175, 80, 0.95)" : "rgba(244, 67, 54, 0.95)";
+          const overlayHeight = height * 0.4;
           ctx.fillRect(10, buttonYStart, width - 20, overlayHeight);
-
-          const iconSize = height * 0.09;
-          const iconX = width - 20 - iconSize - 15;
-          const iconY = buttonYStart + overlayHeight - iconSize - 15;
-          const icon = imageCache["https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/sticker-uhB1G0rlyrpomrlXxFVTt8KLT4aGTU.webp?SGHY"];
-          if (icon && icon.complete) ctx.drawImage(icon, iconX, iconY, iconSize, iconSize);
 
           ctx.fillStyle = "#fff";
           ctx.font = `${Math.min(Math.max(height * 0.03, 16), 24)}px 'Poppins'`;
           ctx.fillText(currentQuestion.answer || "უცნობი", width / 2, buttonYStart + height * 0.05);
 
           ctx.font = `${Math.min(Math.max(height * 0.025, 14), 22)}px 'Poppins'`;
-          wrapText(ctx, currentQuestion.description || "აღწერა არ არის ხელმისაწვდომი", width / 2, buttonYStart + overlayHeight / 2, width - 40, height * 0.03);
+          wrapText(ctx, currentQuestion.description || "აღწერა არ არის", width / 2, buttonYStart + overlayHeight / 2, width - 40, height * 0.03);
           feedbackTimer--;
         }
 
         const homeButtonSize = Math.min(height * 0.06, 40);
         const homeIcon = imageCache[homeIconUrl];
-        if (homeIcon && homeIcon.complete && homeIcon.naturalWidth > 0) {
+        if (homeIcon && homeIcon.complete) {
           ctx.drawImage(homeIcon, width - homeButtonSize - 10, 10, homeButtonSize, homeButtonSize);
-        } else {
-          ctx.fillStyle = "#0288d1";
-          ctx.font = `${Math.min(Math.max(height * 0.03, 16), 24)}px 'Poppins'`;
-          ctx.fillText("🏠", width - homeButtonSize / 2 - 10, 10 + homeButtonSize / 2);
         }
-
-        animationFrameId = requestAnimationFrame(drawGame);
       }
 
       function drawLearn() {
-        if (!isGameActive || mode !== "learn") {
-          if (animationFrameId) cancelAnimationFrame(animationFrameId);
-          return;
-        }
         const width = canvas.width / scaleFactor;
         const height = canvas.height / scaleFactor;
         ctx.clearRect(0, 0, width, height);
@@ -498,12 +465,10 @@
         ctx.fillRect(0, 0, width, height);
 
         const imageAreaHeight = height * 0.33;
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, width, imageAreaHeight);
-
         const currentQuestion = quizQuestions[currentRound] || {};
         const image = imageCache[currentQuestion.image];
         const imageSize = Math.min(imageAreaHeight * 0.9, width * 0.5);
+        
         if (image && image.complete) {
           const imageX = (width - imageSize) / 2;
           const imageY = (imageAreaHeight - imageSize) / 2;
@@ -513,15 +478,6 @@
           ctx.scale(imageZoom, imageZoom);
           ctx.drawImage(image, -imageSize / 2, -imageSize / 2, imageSize, imageSize);
           ctx.restore();
-          ctx.strokeStyle = "#0288d1";
-          ctx.lineWidth = 2;
-          ctx.strokeRect(imageX, imageY, imageSize, imageSize);
-        } else {
-          ctx.beginPath();
-          ctx.arc(width / 2, imageAreaHeight / 2, 20, 0, Math.PI * 2 * (Date.now() % 1000) / 1000);
-          ctx.strokeStyle = "#0288d1";
-          ctx.lineWidth = 3;
-          ctx.stroke();
         }
 
         ctx.fillStyle = "#f5f6fa";
@@ -538,21 +494,15 @@
 
         const overlayHeight = height * 0.4;
         const overlayYStart = imageAreaHeight + height * 0.2;
-        ctx.fillStyle = "rgba(76, 175, 80, 0.9)";
+        ctx.fillStyle = "rgba(76, 175, 80, 0.95)";
         ctx.fillRect(10, overlayYStart, width - 20, overlayHeight);
-
-        const iconSize = height * 0.09;
-        const iconX = width - 20 - iconSize - 15;
-        const iconY = overlayYStart + overlayHeight - iconSize - 15;
-        const icon = imageCache["https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/sticker-uhB1G0rlyrpomrlXxFVTt8KLT4aGTU.webp?SGHY"];
-        if (icon && icon.complete) ctx.drawImage(icon, iconX, iconY, iconSize, iconSize);
 
         ctx.fillStyle = "#fff";
         ctx.font = `${Math.min(Math.max(height * 0.03, 16), 24)}px 'Poppins'`;
         ctx.fillText(currentQuestion.answer || "უცნობი", width / 2, overlayYStart + height * 0.05);
 
         ctx.font = `${Math.min(Math.max(height * 0.025, 14), 22)}px 'Poppins'`;
-        wrapText(ctx, currentQuestion.description || "აღწერა არ არის ხელმისაწვდომი", width / 2, overlayYStart + overlayHeight / 2, width - 40, height * 0.03);
+        wrapText(ctx, currentQuestion.description || "აღწერა არ არის", width / 2, overlayYStart + overlayHeight / 2, width - 40, height * 0.03);
 
         const buttonHeight = Math.min(Math.max(height * 0.08, 40), 70);
         const buttonWidth = 120;
@@ -560,43 +510,25 @@
 
         if (currentRound > 0) {
           ctx.fillStyle = "#0288d1";
-          ctx.shadowColor = "rgba(0, 0, 0, 0.15)";
-          ctx.shadowBlur = 8;
-          ctx.shadowOffsetY = 4;
           ctx.beginPath();
           ctx.roundRect(width / 2 - buttonWidth - 10, buttonY, buttonWidth, buttonHeight, 15);
           ctx.fill();
-          ctx.shadowBlur = 0;
-          ctx.shadowOffsetY = 0;
           ctx.fillStyle = "#fff";
-          ctx.font = `${Math.min(Math.max(height * 0.025, 16), 24)}px 'Poppins'`;
           ctx.fillText("უკან", width / 2 - buttonWidth / 2 - 10, buttonY + buttonHeight / 2);
         }
 
         ctx.fillStyle = "#0288d1";
-        ctx.shadowColor = "rgba(0, 0, 0, 0.15)";
-        ctx.shadowBlur = 8;
-        ctx.shadowOffsetY = 4;
         ctx.beginPath();
         ctx.roundRect(width / 2 + 10, buttonY, buttonWidth, buttonHeight, 15);
         ctx.fill();
-        ctx.shadowBlur = 0;
-        ctx.shadowOffsetY = 0;
         ctx.fillStyle = "#fff";
-        ctx.font = `${Math.min(Math.max(height * 0.025, 16), 24)}px 'Poppins'`;
         ctx.fillText("შემდეგი", width / 2 + buttonWidth / 2 + 10, buttonY + buttonHeight / 2);
 
         const homeButtonSize = Math.min(height * 0.06, 40);
         const homeIcon = imageCache[homeIconUrl];
-        if (homeIcon && homeIcon.complete && homeIcon.naturalWidth > 0) {
+        if (homeIcon && homeIcon.complete) {
           ctx.drawImage(homeIcon, width - homeButtonSize - 10, 10, homeButtonSize, homeButtonSize);
-        } else {
-          ctx.fillStyle = "#0288d1";
-          ctx.font = `${Math.min(Math.max(height * 0.03, 16), 24)}px 'Poppins'`;
-          ctx.fillText("🏠", width - homeButtonSize / 2 - 10, 10 + homeButtonSize / 2);
         }
-
-        animationFrameId = requestAnimationFrame(drawLearn);
       }
 
       function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
@@ -619,27 +551,21 @@
         });
       }
 
-      function calculateScore(guess, answer, options) {
-        if (typeof guess === "string" && typeof answer === "string") {
-          return guess === answer ? 100 : 0;
-        }
-        const diff = Math.abs(guess - answer);
-        const maxDiff = Math.max(...options) - Math.min(...options);
-        return Math.max(0, 100 - Math.floor((diff / (maxDiff / 2)) * 100));
+      function calculateScore(guess, answer) {
+        return guess === answer ? 100 : 0;
       }
 
       function endGame(message = null) {
         isGameActive = false;
-        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        cancelAnimationFrame(animationFrameId);
         const maxScore = totalRounds * 100;
         const accuracy = correctCount + wrongCount > 0 ? Math.round((correctCount / (correctCount + wrongCount)) * 100) : 0;
-        const stats = `
-                ქულა: ${score} / ${maxScore}<br>
-                სწორი პასუხები: ${correctCount}<br>
-                არასწორი პასუხები: ${wrongCount}<br>
-                სიზუსტე: ${accuracy}%
-            `;
-        finalStatsEl.innerHTML = message || stats;
+        finalStatsEl.innerHTML = message || `
+          ქულა: ${score} / ${maxScore}<br>
+          სწორი პასუხები: ${correctCount}<br>
+          არასწორი პასუხები: ${wrongCount}<br>
+          სიზუსტე: ${accuracy}%
+        `;
         let highScore = localStorage.getItem("highScore") || 0;
         if (score > highScore) {
           highScore = score;
@@ -653,7 +579,7 @@
 
       function endLearn() {
         isGameActive = false;
-        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        cancelAnimationFrame(animationFrameId);
         finalStatsEl.innerHTML = "სწავლა დასრულდა!";
         highScoreEl.textContent = "";
         canvas.style.display = "none";
@@ -662,7 +588,7 @@
 
       function returnToHome() {
         isGameActive = false;
-        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        cancelAnimationFrame(animationFrameId);
         mode = null;
         categoryScreen.classList.remove("learning-mode");
         categoryScreen.style.display = "flex";
@@ -676,11 +602,8 @@
         const width = canvas.width / scaleFactor;
         const height = canvas.height / scaleFactor;
 
-        console.log(`Touch/Click at: (${x}, ${y})`);
-
         const homeButtonSize = Math.min(height * 0.06, 40);
         if (x >= width - homeButtonSize - 10 && x <= width - 10 && y >= 10 && y <= 10 + homeButtonSize) {
-          console.log("Home button clicked");
           returnToHome();
           return;
         }
@@ -690,48 +613,45 @@
           const buttonSpacing = height * 0.03;
           const buttonYStart = height * 0.33 + height * 0.2;
           const options = quizQuestions[currentRound]?.options || [];
-          options.forEach((option, idx) => {
+          for (let idx = 0; idx < options.length; idx++) {
             const buttonY = buttonYStart + idx * (buttonHeight + buttonSpacing);
             if (x >= 20 && x <= width - 20 && y >= buttonY && y <= buttonY + buttonHeight) {
-              console.log(`Option ${idx} clicked: ${option}`);
-              handleAnswer(option);
+              handleAnswer(options[idx]);
+              break;
             }
-          });
+          }
         } else if (mode === "learn") {
           const buttonHeight = Math.min(Math.max(height * 0.08, 40), 70);
           const buttonWidth = 120;
           const buttonY = height - buttonHeight - 20;
 
           if (currentRound > 0 && x >= width / 2 - buttonWidth - 10 && x <= width / 2 - 10 && y >= buttonY && y <= buttonY + buttonHeight) {
-            console.log("Back button clicked");
             handleBackSlide();
-          }
-          if (x >= width / 2 + 10 && x <= width / 2 + buttonWidth + 10 && y >= buttonY && y <= buttonY + buttonHeight) {
-            console.log("Next button clicked");
+          } else if (x >= width / 2 + 10 && x <= width / 2 + buttonWidth + 10 && y >= buttonY && y <= buttonY + buttonHeight) {
             handleNextSlide();
           }
         }
       }
 
+      let lastTouchTime = 0;
+      const debounceTime = 200;
+
       canvas.addEventListener("touchstart", (e) => {
         e.preventDefault();
+        const now = Date.now();
+        if (now - lastTouchTime < debounceTime) return;
+        lastTouchTime = now;
         const touch = e.touches[0];
         const rect = canvas.getBoundingClientRect();
         const x = (touch.clientX - rect.left) * (canvas.width / scaleFactor / rect.width);
         const y = (touch.clientY - rect.top) * (canvas.height / scaleFactor / rect.height);
         handleInteraction(x, y);
-      });
-
-      canvas.addEventListener("touchend", (e) => {
-        e.preventDefault();
-        const touch = e.changedTouches[0];
-        const rect = canvas.getBoundingClientRect();
-        const x = (touch.clientX - rect.left) * (canvas.width / scaleFactor / rect.width);
-        const y = (touch.clientY - rect.top) * (canvas.height / scaleFactor / rect.height);
-        handleInteraction(x, y);
-      });
+      }, { passive: false });
 
       canvas.addEventListener("click", (e) => {
+        const now = Date.now();
+        if (now - lastTouchTime < debounceTime) return;
+        lastTouchTime = now;
         const rect = canvas.getBoundingClientRect();
         const x = (e.clientX - rect.left) * (canvas.width / scaleFactor / rect.width);
         const y = (e.clientY - rect.top) * (canvas.height / scaleFactor / rect.height);
@@ -752,7 +672,7 @@
         if (feedbackTimer > 0) return;
         const currentQuestion = quizQuestions[currentRound] || {};
         selectedAnswer = option;
-        const points = calculateScore(option, currentQuestion.answer || 0, currentQuestion.options || [0, 0, 0]);
+        const points = calculateScore(option, currentQuestion.answer);
         score += points;
 
         if (option === currentQuestion.answer) {
@@ -766,7 +686,6 @@
 
         feedbackTimer = FEEDBACK_DURATION;
         imageZoom = 0;
-        drawGame();
 
         setTimeout(() => {
           if (!isGameActive) return;
@@ -777,18 +696,16 @@
             selectedAnswer = null;
             feedbackTimer = 0;
             imageZoom = 0;
-            drawGame();
           } else {
             endGame();
           }
-        }, 4000);
+        }, 2000);
       }
 
       function handleNextSlide() {
         if (currentRound + 1 < quizQuestions.length) {
           currentRound++;
           imageZoom = 0;
-          drawLearn();
         } else {
           endLearn();
         }
@@ -798,7 +715,6 @@
         if (currentRound > 0) {
           currentRound--;
           imageZoom = 0;
-          drawLearn();
         }
       }
 
@@ -816,13 +732,7 @@
       });
 
       startButton.addEventListener("click", initGame);
-
-      restartBtn.addEventListener("click", () => {
-        mode = null;
-        categoryScreen.classList.remove("learning-mode");
-        categoryScreen.style.display = "flex";
-        finalScreen.style.display = "none";
-      });
+      restartBtn.addEventListener("click", returnToHome);
 
       preloadImages();
       resizeCanvas();

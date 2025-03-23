@@ -218,22 +218,38 @@
     </div>
 
     <script>
-      const questionPool = [
+      const gameQuestionPool = [
         {
           question: "რა არის ეს სანთელი?",
           answer: "კალია/Dragonfly Doji",
           options: ["გრძელფეხა დოჯი", "სასიკვდილო დოჯი", "კალია/Dragonfly Doji"],
-          image: "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/bb1-DKDv7KiUtOSstb5xsFG2mvRcqkWiNA.jpeg?bRUv",
+          image: "https://ta3bviqjtxy1kv7x.public.blob.vercel-storage.com/dragonfly-JW0AaWUPsWHwspdhPaFoKu6yzvH7qg.JPG",
           description: "დოჯის იშვიათი სტრუქტურა, ხშირად კალიას უწოდებენ, მისი სტრუქტურიდან გამომდინარე. სანთელი იქმნება ტალღის ქვედა ნაწილში და აღმავალ ტალღაზე მიგვანიშნებს.",
         },
         {
           question: "რა არის ეს სანთელი?",
           answer: "სასიკვდილო დოჯი",
           options: ["კალია", "სასიკვდილო დოჯი", "გრძელფეხა დოჯი"],
-          image: "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/gravestone-WZn634IGj8HyRhLidmWqsrJIcE8KSO.jpeg?wlAd",
+          image: "https://ta3bviqjtxy1kv7x.public.blob.vercel-storage.com/gravestone-rk6lTfoINeUuqT4g6lUfhsyrxUx6Ps.JPG",
           description: "ყველაზე აგრესიული ბეარ სცენარის საწყისი, ყველაზე ნეგატიური სანთელი რომელიც გვანიშნებს ტრენდის შემოტრიალებაზე.",
         },
-        // Add more unique questions as needed
+        // Add more game-specific questions here (up to 30 or as needed)
+      ];
+
+      const learnQuestionPool = [
+        {
+          question: "რას ნიშნავს კალია/Dragonfly Doji?",
+          answer: "კალია/Dragonfly Doji",
+          image: "https://ta3bviqjtxy1kv7x.public.blob.vercel-storage.com/bb1-oKMLxm3KHDg19RJdvZM9AdgtMdfpy3.JPG",
+          description: "ეს არის დოჯის ტიპი, რომელიც მიუთითებს პოტენციურ აღმავალ ტრენდზე. იგი ხშირად ჩნდება ფასის დაბალ წერტილში და გამოიყურება როგორც გრძელი ქვედა ჩრდილი მცირე სხეულით.",
+        },
+        {
+          question: "რას ნიშნავს სასიკვდილო დოჯი?",
+          answer: "სასიკვდილო დოჯი",
+          image: "https://ta3bviqjtxy1kv7x.public.blob.vercel-storage.com/bbasfrsa-jljy8YRTyJzTCUL4CZpxPgGvxszZI7.JPG",
+          description: "ეს სანთელი მიუთითებს ძლიერ დაცემით ტრენდზე. გამოიყურება როგორც გრძელი ზედა ჩრდილი მცირე სხეულით ფასის მაღალ წერტილში.",
+        },
+        // Add more learning-specific questions here
       ];
 
       const correctSound = new Audio("https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/correct-zZhYrVGunWGwLmLL0aEvGRPwhzCRLS.wav");
@@ -257,7 +273,7 @@
       let score = 0;
       let wrongCount = 0;
       let correctCount = 0;
-      const totalRounds = 7;
+      const totalRounds = 30;
       let quizQuestions = [];
       let selectedAnswer = null;
       let feedbackTimer = 0;
@@ -269,10 +285,10 @@
       let shakeOffset = 0;
       let shakeTimer = 0;
       let animationFrameId = null;
-      const FEEDBACK_DURATION = 120; // 2 seconds at 60 FPS
+      const FEEDBACK_DURATION = 120;
 
       function preloadImages() {
-        questionPool.forEach((q) => {
+        [...gameQuestionPool, ...learnQuestionPool].forEach((q) => {
           if (q.image && !imageCache[q.image]) {
             const img = new Image();
             img.src = q.image;
@@ -323,7 +339,7 @@
       }
 
       function initGame() {
-        const baseQuestions = shuffle(questionPool);
+        const baseQuestions = shuffle(gameQuestionPool);
         quizQuestions = [];
         while (quizQuestions.length < totalRounds) {
           quizQuestions = quizQuestions.concat(shuffle([...baseQuestions]));
@@ -344,7 +360,7 @@
       }
 
       function initLearn() {
-        quizQuestions = shuffle(questionPool);
+        quizQuestions = shuffle(learnQuestionPool);
         currentRound = 0;
         isGameActive = true;
         categoryScreen.style.display = "none";
@@ -514,7 +530,7 @@
           ctx.roundRect(width / 2 - buttonWidth - 10, buttonY, buttonWidth, buttonHeight, 15);
           ctx.fill();
           ctx.fillStyle = "#fff";
-          ctx.fillText("უკან", width / 2 - buttonWidth / 2 - 10, buttonY + buttonHeight / 2);
+          ctx.fillText("უკან Hermione", width / 2 - buttonWidth / 2 - 10, buttonY + buttonHeight / 2);
         }
 
         ctx.fillStyle = "#0288d1";

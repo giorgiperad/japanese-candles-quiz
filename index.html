@@ -53,7 +53,7 @@
       }
       #category-screen h1, #start-screen h1 {
         font-size: clamp(1.8rem, 5vw, 3.5rem);
-        color: #68019b;
+        color: #01579b;
         margin-bottom: 30px;
         font-weight: 600;
         text-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
@@ -373,7 +373,7 @@
         const progress = ((currentRound + 1) / totalRounds) * (width - 20);
         ctx.fillRect(10, imageAreaHeight + height * 0.06, progress, height * 0.02);
 
-        ctx.fillStyle = "#68019b";
+        ctx.fillStyle = "#01579b";
         ctx.font = `${height * 0.035}px 'Poppins'`;
         wrapText(
           ctx,
@@ -488,7 +488,7 @@
           imageAreaHeight + height * 0.03,
         );
 
-        ctx.fillStyle = "#68019b";
+        ctx.fillStyle = "#01579b";
         ctx.font = `${height * 0.035}px 'Poppins'`;
         wrapText(
           ctx,

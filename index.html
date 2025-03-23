@@ -466,7 +466,7 @@
           const descriptionIcon = imageCache[descriptionIconUrl];
           wrapText(ctx, currentQuestion.description || "აღწერა არ არის", width / 2, descriptionY, width - 40, height * 0.03);
           if (descriptionIcon && descriptionIcon.complete) {
-            ctx.drawImage(descriptionIcon, width - 50 - iconSize, buttonYStart + overlayHeight - iconSize - 10, iconSize, iconSize);
+            ctx.drawImage(descriptionIcon, width - 30 - iconSize, buttonYStart + overlayHeight - iconSize - 30, iconSize, iconSize);
           }
           feedbackTimer--;
         }
@@ -529,7 +529,7 @@
         const descriptionIcon = imageCache[descriptionIconUrl];
         wrapText(ctx, currentQuestion.description || "აღწერა არ არის", width / 2, descriptionY, width - 40, height * 0.03);
         if (descriptionIcon && descriptionIcon.complete) {
-          ctx.drawImage(descriptionIcon, width - 50 - iconSize, overlayYStart + overlayHeight - iconSize - 10, iconSize, iconSize);
+          ctx.drawImage(descriptionIcon, width - 30 - iconSize, overlayYStart + overlayHeight - iconSize - 30, iconSize, iconSize);
         }
 
         const buttonHeight = Math.min(Math.max(height * 0.08, 40), 70);

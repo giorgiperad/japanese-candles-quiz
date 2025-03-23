@@ -671,11 +671,11 @@
           wrongCount++;
         }
 
-        feedbackTimer = 300;
+        feedbackTimer = 100;
         drawGame();
 
         setTimeout(() => {
-          if (wrongCount >= 1) {
+          if (wrongCount >= 3) {
             endGame("ძალიან ბევრი არასწორი პასუხი!");
           } else if (currentRound + 1 < totalRounds) {
             currentRound++;

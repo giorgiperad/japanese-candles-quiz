@@ -297,7 +297,7 @@
             img.onerror = () => (imageCache[q.image] = null);
           }
         });
-        const iconUrl = "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/sticker-uhB1G0rlyrpomrlXxFVTt8KLT4aGTU.webp?SGHY";
+        const iconUrl = "https://ta3bviqjtxy1kv7x.public.blob.vercel-storage.com/sticker-22fp86elY4BIwEl8vTwL5Lh0D2109y.webp";
         if (!imageCache[iconUrl]) {
           const icon = new Image();
           icon.src = iconUrl;
@@ -390,7 +390,7 @@
         const imageAreaHeight = height * 0.33;
         const currentQuestion = quizQuestions[currentRound] || {};
         const image = imageCache[currentQuestion.image];
-        const imageSize = Math.min(imageAreaHeight * 0.9, width * 0.5);
+        const imageSize = Math.min(imageAreaHeight * 0.9, width * 1.5);
         
         if (image && image.complete && image.naturalWidth > 0) {
           const imageX = (width - imageSize) / 2;
@@ -530,7 +530,7 @@
           ctx.roundRect(width / 2 - buttonWidth - 10, buttonY, buttonWidth, buttonHeight, 15);
           ctx.fill();
           ctx.fillStyle = "#fff";
-          ctx.fillText("უკან Hermione", width / 2 - buttonWidth / 2 - 10, buttonY + buttonHeight / 2);
+          ctx.fillText("უკან", width / 2 - buttonWidth / 2 - 10, buttonY + buttonHeight / 2);
         }
 
         ctx.fillStyle = "#0288d1";

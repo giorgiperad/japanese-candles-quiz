@@ -2,20 +2,20 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Image Estimation Quiz - Mobile (Georgian)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Japanese Candles Quiz - Modern</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
       body {
         margin: 0;
         padding: 0;
-        font-family: "Segoe UI", Arial, sans-serif;
+        font-family: "Poppins", sans-serif;
         display: flex;
         justify-content: center;
         align-items: center;
         min-height: 100vh;
-        background: linear-gradient(135deg, #74ebd5, #ffffff);
+        background: linear-gradient(145deg, #e0f7fa, #80deea);
         overflow: hidden;
-        touch-action: none;
       }
       #game-container {
         position: relative;
@@ -26,13 +26,13 @@
         align-items: center;
       }
       #game-canvas {
-        max-width: 400px;
-        max-height: 800px;
-        width: 100%;
-        height: 100%;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
-        touch-action: manipulation;
+        width: 90vw;
+        height: 90vh;
+        max-width: 1200px;
+        max-height: 900px;
+        border-radius: 25px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        background: #ffffff;
         display: none;
       }
       #category-screen, #start-screen {
@@ -41,38 +41,58 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(135deg, #74ebd5, #ffffff);
+        background: linear-gradient(145deg, #e0f7fa, #80deea);
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         text-align: center;
         padding: 20px;
-        border-radius: 20px;
+        border-radius: 25px;
         box-sizing: border-box;
       }
       #category-screen h1, #start-screen h1 {
-        font-size: 2.5em;
-        color: #333;
-        margin-bottom: 20px;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        font-size: clamp(1.8rem, 5vw, 3.5rem);
+        color: #01579b;
+        margin-bottom: 30px;
+        font-weight: 600;
+        text-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
       }
       .category-button, #start-button {
-        width: 160px;
-        height: 60px;
-        background: linear-gradient(45deg, #4facfe, #00f2fe);
-        color: white;
+        width: clamp(140px, 22vw, 240px);
+        height: clamp(50px, 9vw, 70px);
+        background: linear-gradient(90deg, #0288d1, #4fc3f7);
+        color: #fff;
         border: none;
-        border-radius: 30px;
-        font-size: 1.2em;
+        border-radius: 50px;
+        font-size: clamp(1rem, 3vw, 1.6rem);
+        font-weight: 600;
         cursor: pointer;
-        transition: transform 0.2s, box-shadow 0.2s;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        margin: 10px;
+        box-shadow: 0 8px 20px rgba(2, 136, 209, 0.3);
+        transition: all 0.3s ease;
+        margin: 15px;
+        position: relative;
+        overflow: hidden;
+      }
+      .category-button::after, #start-button::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.6s ease, height 0.6s ease;
+      }
+      .category-button:hover::after, #start-button:hover::after {
+        width: 200%;
+        height: 200%;
       }
       .category-button:hover, #start-button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(2, 136, 209, 0.5);
       }
       #final-screen {
         position: absolute;
@@ -80,63 +100,73 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(135deg, #ff6b6b, #8e2c5e);
+        background: linear-gradient(145deg, #ff8a80, #f06292);
         display: none;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         text-align: center;
         padding: 20px;
-        animation: fadeIn 0.5s ease-in-out;
-        border-radius: 20px;
+        border-radius: 25px;
         box-sizing: border-box;
       }
       #final-screen h2 {
-        font-size: 2.5em;
+        font-size: clamp(1.8rem, 5vw, 3.5rem);
         color: #fff;
-        margin-bottom: 20px;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        animation: popIn 0.5s ease;
+        margin-bottom: 30px;
+        font-weight: 600;
+        text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       }
       #final-stats {
-        background: rgba(255, 255, 255, 0.9);
-        padding: 15px 25px;
-        border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.95);
+        padding: clamp(15px, 2.5vw, 30px);
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         margin-bottom: 20px;
-        color: #333;
-        font-size: 1.2em;
+        color: #d81b60;
+        font-size: clamp(1rem, 2.5vw, 1.6rem);
         line-height: 1.6;
       }
       #high-score {
-        font-size: 1.3em;
+        font-size: clamp(1rem, 2.5vw, 1.6rem);
         color: #fff;
-        margin: 10px 0;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        margin: 15px 0;
+        font-weight: 400;
       }
       #restart {
-        width: 140px;
-        height: 50px;
-        background: linear-gradient(45deg, #4facfe, #00f2fe);
-        color: white;
+        width: clamp(120px, 18vw, 180px);
+        height: clamp(45px, 7vw, 60px);
+        background: linear-gradient(90deg, #0288d1, #4fc3f7);
+        color: #fff;
         border: none;
-        border-radius: 25px;
-        font-size: 1.1em;
+        border-radius: 50px;
+        font-size: clamp(1rem, 2.5vw, 1.4rem);
+        font-weight: 600;
         cursor: pointer;
-        transition: transform 0.2s, box-shadow 0.2s;
-        box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 20px rgba(2, 136, 209, 0.3);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      #restart::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.6s ease, height 0.6s ease;
+      }
+      #restart:hover::after {
+        width: 200%;
+        height: 200%;
       }
       #restart:hover {
-        transform: scale(1.05);
-        box-shadow: 0 8px 20px rgba(255, 255, 255, 0.25);
-      }
-      @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-      }
-      @keyframes popIn {
-        0% { transform: scale(0.5); opacity: 0; }
-        100% { transform: scale(1); opacity: 1; }
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(2, 136, 209, 0.5);
       }
     </style>
     <script src="https://unpkg.com/@farcade/game-sdk@latest/dist/index.min.js"></script>
@@ -213,7 +243,7 @@
       let isGameActive = false;
       let scaleFactor = 1;
       let imageCache = {};
-      let mode = null; // "game" or "learn"
+      let mode = null;
 
       function preloadImages() {
         questionPool.forEach((q) => {
@@ -221,14 +251,8 @@
             const img = new Image();
             img.src = q.image;
             img.crossOrigin = "Anonymous";
-            img.onload = () => {
-              console.log(`Image loaded: ${q.image}`);
-              imageCache[q.image] = img;
-            };
-            img.onerror = () => {
-              console.error(`Image failed to load: ${q.image}`);
-              imageCache[q.image] = null;
-            };
+            img.onload = () => (imageCache[q.image] = img);
+            img.onerror = () => (imageCache[q.image] = null);
           }
         });
         const iconUrl =
@@ -237,36 +261,22 @@
           const icon = new Image();
           icon.src = iconUrl;
           icon.crossOrigin = "Anonymous";
-          icon.onload = () => {
-            console.log(`Icon loaded: ${iconUrl}`);
-            imageCache[iconUrl] = icon;
-          };
-          icon.onerror = () => {
-            console.error(`Icon failed to load: ${iconUrl}`);
-            imageCache[iconUrl] = null;
-          };
+          icon.onload = () => (imageCache[iconUrl] = icon);
+          icon.onerror = () => (imageCache[iconUrl] = null);
         }
       }
 
       function resizeCanvas() {
-        const maxWidth = 400;
-        const maxHeight = 800;
         const dpr = window.devicePixelRatio || 1;
-        let width = Math.min(window.innerWidth * 0.95, maxWidth);
-        let height = Math.min(window.innerHeight * 0.95, maxHeight);
-        const aspectRatio = maxWidth / maxHeight;
-        if (width / height > aspectRatio) {
-          width = height * aspectRatio;
-        } else {
-          height = width / aspectRatio;
-        }
+        const width = Math.min(window.innerWidth * 0.9, 1200);
+        const height = Math.min(window.innerHeight * 0.9, 900);
         canvas.style.width = `${width}px`;
         canvas.style.height = `${height}px`;
         canvas.width = width * dpr;
         canvas.height = height * dpr;
         scaleFactor = dpr;
         ctx.scale(dpr, dpr);
-        if (isGameActive) drawGame();
+        if (isGameActive) mode === "game" ? drawGame() : drawLearn();
       }
 
       window.addEventListener("resize", resizeCanvas);
@@ -282,28 +292,12 @@
       }
 
       function initGame() {
-        console.log("Initializing game...");
         const baseQuestions = shuffle(questionPool);
         quizQuestions = [];
         while (quizQuestions.length < totalRounds) {
           quizQuestions = quizQuestions.concat(shuffle([...baseQuestions]));
         }
         quizQuestions = quizQuestions.slice(0, totalRounds);
-        if (
-          !quizQuestions.length ||
-          !quizQuestions.every((q) => q && q.question && q.options && q.answer !== undefined && q.image)
-        ) {
-          console.error("Invalid quizQuestions data:", quizQuestions);
-          quizQuestions = [
-            {
-              question: "რომელ წელს?",
-              answer: 2023,
-              options: [2020, 2023, 2025],
-              image: "",
-              description: "ფაქტობრივი წელი 2023.",
-            },
-          ];
-        }
         currentRound = 0;
         score = 0;
         wrongCount = 0;
@@ -319,8 +313,7 @@
       }
 
       function initLearn() {
-        console.log("Initializing learn mode...");
-        quizQuestions = shuffle(questionPool); // Use all questions in random order
+        quizQuestions = shuffle(questionPool);
         currentRound = 0;
         isGameActive = true;
         categoryScreen.style.display = "none";
@@ -332,7 +325,6 @@
 
       function drawGame() {
         if (!isGameActive || mode !== "game") return;
-
         const width = canvas.width / scaleFactor;
         const height = canvas.height / scaleFactor;
         ctx.clearRect(0, 0, width, height);
@@ -343,34 +335,31 @@
         const imageAreaHeight = height * 0.33;
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, width, imageAreaHeight);
+        ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetY = 5;
 
         const currentQuestion = quizQuestions[currentRound] || {};
-        const image = currentQuestion.image ? imageCache[currentQuestion.image] : null;
-        const imageSize = Math.min(imageAreaHeight * 0.9, width * 0.4);
-        try {
-          if (image && image.complete && image.naturalWidth > 0) {
-            const imageX = (width - imageSize) / 2;
-            const imageY = (imageAreaHeight - imageSize) / 2;
-            ctx.drawImage(image, imageX, imageY, imageSize, imageSize);
-          } else {
-            ctx.fillStyle = "#333";
-            ctx.font = `${height * 0.03}px 'Segoe UI'`;
-            ctx.textAlign = "center";
-            ctx.fillText("სურათი მიუწვდომელია", width / 2, imageAreaHeight / 2);
-          }
-        } catch (e) {
-          console.error(`Error drawing image for ${currentQuestion.image}: ${e.message}`);
-          ctx.fillStyle = "#333";
-          ctx.font = `${height * 0.03}px 'Segoe UI'`;
+        const image = imageCache[currentQuestion.image];
+        const imageSize = Math.min(imageAreaHeight * 0.9, width * 0.5);
+        if (image && image.complete && image.naturalWidth > 0) {
+          const imageX = (width - imageSize) / 2;
+          const imageY = (imageAreaHeight - imageSize) / 2;
+          ctx.drawImage(image, imageX, imageY, imageSize, imageSize);
+        } else {
+          ctx.fillStyle = "#555";
+          ctx.font = `${height * 0.03}px 'Poppins'`;
           ctx.textAlign = "center";
-          ctx.fillText("სურათის შეცდომა", width / 2, imageAreaHeight / 2);
+          ctx.fillText("სურათი მიუწვდომელია", width / 2, imageAreaHeight / 2);
         }
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
 
-        ctx.fillStyle = "#f9f9f9";
+        ctx.fillStyle = "#f5f6fa";
         ctx.fillRect(0, imageAreaHeight, width, height - imageAreaHeight);
 
-        ctx.fillStyle = "#555";
-        ctx.font = `${height * 0.03}px 'Segoe UI'`;
+        ctx.fillStyle = "#0288d1";
+        ctx.font = `${height * 0.03}px 'Poppins'`;
         ctx.textAlign = "center";
         ctx.fillText(
           `ქულა: ${score} | რაუნდი: ${currentRound + 1}/${totalRounds}`,
@@ -380,18 +369,18 @@
 
         ctx.fillStyle = "#e0e0e0";
         ctx.fillRect(10, imageAreaHeight + height * 0.06, width - 20, height * 0.02);
-        ctx.fillStyle = "#ff6b6b";
+        ctx.fillStyle = "#ff8a80";
         const progress = ((currentRound + 1) / totalRounds) * (width - 20);
         ctx.fillRect(10, imageAreaHeight + height * 0.06, progress, height * 0.02);
 
-        ctx.fillStyle = "#333";
-        ctx.font = `${height * 0.035}px 'Segoe UI'`;
+        ctx.fillStyle = "#01579b";
+        ctx.font = `${height * 0.035}px 'Poppins'`;
         wrapText(
           ctx,
           currentQuestion.question || "კითხვა მიუწვდომელია",
           width / 2,
           imageAreaHeight + height * 0.12,
-          width - 20,
+          width - 40,
           height * 0.04,
         );
 
@@ -406,48 +395,42 @@
 
           ctx.fillStyle =
             feedbackTimer > 0 && isCorrect
-              ? `rgba(${40 + Math.sin(Date.now() / 200) * 20}, ${167 + Math.sin(Date.now() / 200) * 20}, 69, 1)`
+              ? "#4caf50"
               : feedbackTimer > 0 && isSelected && !isCorrect
-                ? `rgba(${220 + Math.sin(Date.now() / 200) * 20}, ${53 + Math.sin(Date.now() / 200) * 20}, 69, 1)`
-                : "#f0f0f0";
-          ctx.fillRect(10, y, width - 20, buttonHeight);
-          ctx.strokeStyle = "#ddd";
-          ctx.lineWidth = 2;
-          ctx.strokeRect(10, y, width - 20, buttonHeight);
+                ? "#f44336"
+                : "#ffffff";
+          ctx.shadowColor = "rgba(0, 0, 0, 0.15)";
+          ctx.shadowBlur = 8;
+          ctx.shadowOffsetY = 4;
+          ctx.beginPath();
+          ctx.roundRect(20, y, width - 40, buttonHeight, 15);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.shadowOffsetY = 0;
 
-          ctx.fillStyle = feedbackTimer > 0 && isCorrect ? "#fff" : "#444";
-          ctx.font = `${height * 0.025}px 'Segoe UI'`;
+          ctx.fillStyle = feedbackTimer > 0 && isCorrect ? "#fff" : "#0288d1";
+          ctx.font = `${height * 0.025}px 'Poppins'`;
           ctx.fillText(`${String.fromCharCode(65 + idx)}) ${option}`, width / 2, y + buttonHeight / 2);
         });
 
         if (feedbackTimer > 0) {
           const isCorrectAnswer = selectedAnswer === currentQuestion.answer;
-          ctx.fillStyle = isCorrectAnswer ? "rgba(rgba(100, 2, 53, 0.8))" : "rgba(125, 7, 7, 0.9)";
+          ctx.fillStyle = isCorrectAnswer ? "rgba(rgba(100, 2, 53, 0.8))" : "rgba(125, 7, 7, 0.9)"; // Green for correct, red for wrong
           const overlayHeight = 3 * (buttonHeight + buttonSpacing);
           ctx.fillRect(10, buttonYStart, width - 20, overlayHeight);
 
           const iconSize = height * 0.09;
-          const iconX = width - 20 - iconSize - 10;
-          const iconY = buttonYStart + overlayHeight - iconSize - 10;
-          const icon =
-            imageCache[
-              "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/sticker-uhB1G0rlyrpomrlXxFVTt8KLT4aGTU.webp?SGHY"
-            ];
-          if (icon && icon.complete && icon.naturalWidth > 0) {
-            ctx.drawImage(icon, iconX, iconY, iconSize, iconSize);
-          } else {
-            ctx.fillStyle = "#fff";
-            ctx.font = `${height * 0.025}px 'Segoe UI'`;
-            ctx.textAlign = "center";
-            ctx.fillText("?", iconX + iconSize / 2, iconY + iconSize / 2);
-          }
+          const iconX = width - 20 - iconSize - 15;
+          const iconY = buttonYStart + overlayHeight - iconSize - 15;
+          const icon = imageCache["https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/sticker-uhB1G0rlyrpomrlXxFVTt8KLT4aGTU.webp?SGHY"];
+          if (icon && icon.complete) ctx.drawImage(icon, iconX, iconY, iconSize, iconSize);
 
           ctx.fillStyle = "#fff";
-          ctx.font = `${height * 0.03}px 'Segoe UI'`;
+          ctx.font = `${height * 0.03}px 'Poppins'`;
           ctx.textAlign = "center";
           ctx.fillText(currentQuestion.answer || "უცნობი", width / 2, buttonYStart + height * 0.05);
 
-          ctx.font = `${height * 0.025}px 'Segoe UI'`;
+          ctx.font = `${height * 0.025}px 'Poppins'`;
           wrapText(
             ctx,
             currentQuestion.description || "აღწერა არ არის ხელმისაწვდომი",
@@ -463,7 +446,6 @@
 
       function drawLearn() {
         if (!isGameActive || mode !== "learn") return;
-
         const width = canvas.width / scaleFactor;
         const height = canvas.height / scaleFactor;
         ctx.clearRect(0, 0, width, height);
@@ -474,34 +456,31 @@
         const imageAreaHeight = height * 0.33;
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, width, imageAreaHeight);
+        ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetY = 5;
 
         const currentQuestion = quizQuestions[currentRound] || {};
-        const image = currentQuestion.image ? imageCache[currentQuestion.image] : null;
-        const imageSize = Math.min(imageAreaHeight * 0.9, width * 0.4);
-        try {
-          if (image && image.complete && image.naturalWidth > 0) {
-            const imageX = (width - imageSize) / 2;
-            const imageY = (imageAreaHeight - imageSize) / 2;
-            ctx.drawImage(image, imageX, imageY, imageSize, imageSize);
-          } else {
-            ctx.fillStyle = "#333";
-            ctx.font = `${height * 0.03}px 'Segoe UI'`;
-            ctx.textAlign = "center";
-            ctx.fillText("სურათი მიუწვდომელია", width / 2, imageAreaHeight / 2);
-          }
-        } catch (e) {
-          console.error(`Error drawing image for ${currentQuestion.image}: ${e.message}`);
-          ctx.fillStyle = "#333";
-          ctx.font = `${height * 0.03}px 'Segoe UI'`;
+        const image = imageCache[currentQuestion.image];
+        const imageSize = Math.min(imageAreaHeight * 0.9, width * 0.5);
+        if (image && image.complete) {
+          const imageX = (width - imageSize) / 2;
+          const imageY = (imageAreaHeight - imageSize) / 2;
+          ctx.drawImage(image, imageX, imageY, imageSize, imageSize);
+        } else {
+          ctx.fillStyle = "#555";
+          ctx.font = `${height * 0.03}px 'Poppins'`;
           ctx.textAlign = "center";
-          ctx.fillText("სურათის შეცდომა", width / 2, imageAreaHeight / 2);
+          ctx.fillText("სურათი მიუწვდომელია", width / 2, imageAreaHeight / 2);
         }
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
 
-        ctx.fillStyle = "#f9f9f9";
+        ctx.fillStyle = "#f5f6fa";
         ctx.fillRect(0, imageAreaHeight, width, height - imageAreaHeight);
 
-        ctx.fillStyle = "#555";
-        ctx.font = `${height * 0.03}px 'Segoe UI'`;
+        ctx.fillStyle = "#0288d1";
+        ctx.font = `${height * 0.03}px 'Poppins'`;
         ctx.textAlign = "center";
         ctx.fillText(
           `სლაიდი: ${currentRound + 1}/${quizQuestions.length}`,
@@ -509,44 +488,34 @@
           imageAreaHeight + height * 0.03,
         );
 
-        ctx.fillStyle = "#333";
-        ctx.font = `${height * 0.035}px 'Segoe UI'`;
+        ctx.fillStyle = "#01579b";
+        ctx.font = `${height * 0.035}px 'Poppins'`;
         wrapText(
           ctx,
           currentQuestion.question || "კითხვა მიუწვდომელია",
           width / 2,
           imageAreaHeight + height * 0.12,
-          width - 20,
+          width - 40,
           height * 0.04,
         );
 
         const overlayHeight = height * 0.4;
         const overlayYStart = imageAreaHeight + height * 0.2;
-        ctx.fillStyle = "rgba(0, 255, 0, 0.8)"; // Always green for learning mode
+        ctx.fillStyle = "rgba(76, 175, 80, 0.9)";
         ctx.fillRect(10, overlayYStart, width - 20, overlayHeight);
 
         const iconSize = height * 0.09;
-        const iconX = width - 20 - iconSize - 10;
-        const iconY = overlayYStart + overlayHeight - iconSize - 10;
-        const icon =
-          imageCache[
-            "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/sticker-uhB1G0rlyrpomrlXxFVTt8KLT4aGTU.webp?SGHY"
-          ];
-        if (icon && icon.complete && icon.naturalWidth > 0) {
-          ctx.drawImage(icon, iconX, iconY, iconSize, iconSize);
-        } else {
-          ctx.fillStyle = "#fff";
-          ctx.font = `${height * 0.025}px 'Segoe UI'`;
-          ctx.textAlign = "center";
-          ctx.fillText("?", iconX + iconSize / 2, iconY + iconSize / 2);
-        }
+        const iconX = width - 20 - iconSize - 15;
+        const iconY = overlayYStart + overlayHeight - iconSize - 15;
+        const icon = imageCache["https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/sticker-uhB1G0rlyrpomrlXxFVTt8KLT4aGTU.webp?SGHY"];
+        if (icon && icon.complete) ctx.drawImage(icon, iconX, iconY, iconSize, iconSize);
 
         ctx.fillStyle = "#fff";
-        ctx.font = `${height * 0.03}px 'Segoe UI'`;
+        ctx.font = `${height * 0.03}px 'Poppins'`;
         ctx.textAlign = "center";
         ctx.fillText(currentQuestion.answer || "უცნობი", width / 2, overlayYStart + height * 0.05);
 
-        ctx.font = `${height * 0.025}px 'Segoe UI'`;
+        ctx.font = `${height * 0.025}px 'Poppins'`;
         wrapText(
           ctx,
           currentQuestion.description || "აღწერა არ არის ხელმისაწვდომი",
@@ -556,13 +525,20 @@
           height * 0.03,
         );
 
-        // Next slide button
         const buttonHeight = height * 0.08;
         const nextButtonY = height - buttonHeight - 20;
-        ctx.fillStyle = "#4facfe";
-        ctx.fillRect(width / 2 - 70, nextButtonY, 140, buttonHeight);
+        ctx.fillStyle = "#0288d1";
+        ctx.shadowColor = "rgba(0, 0, 0, 0.15)";
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetY = 4;
+        ctx.beginPath();
+        ctx.roundRect(width / 2 - 80, nextButtonY, 160, buttonHeight, 15);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
+
         ctx.fillStyle = "#fff";
-        ctx.font = `${height * 0.025}px 'Segoe UI'`;
+        ctx.font = `${height * 0.025}px 'Poppins'`;
         ctx.fillText("შემდეგი", width / 2, nextButtonY + buttonHeight / 2);
       }
 
@@ -627,20 +603,17 @@
 
       function handleInteraction(x, y) {
         if (!isGameActive) return;
-
         const width = canvas.width / scaleFactor;
         const height = canvas.height / scaleFactor;
 
-        if (mode === "game") {
-          if (feedbackTimer > 0) return;
+        if (mode === "game" && feedbackTimer === 0) {
           const buttonHeight = height * 0.08;
           const buttonSpacing = height * 0.02;
           const buttonYStart = height * 0.33 + height * 0.2;
-          const currentQuestion = quizQuestions[currentRound] || {};
-          const options = currentQuestion.options || [];
+          const options = quizQuestions[currentRound]?.options || [];
           options.forEach((option, idx) => {
             const buttonY = buttonYStart + idx * (buttonHeight + buttonSpacing);
-            if (x >= 10 && x <= width - 10 && y >= buttonY && y <= buttonY + buttonHeight) {
+            if (x >= 20 && x <= width - 20 && y >= buttonY && y <= buttonY + buttonHeight) {
               handleAnswer(option);
             }
           });
@@ -648,8 +621,8 @@
           const buttonHeight = height * 0.08;
           const nextButtonY = height - buttonHeight - 20;
           if (
-            x >= width / 2 - 70 &&
-            x <= width / 2 + 70 &&
+            x >= width / 2 - 80 &&
+            x <= width / 2 + 80 &&
             y >= nextButtonY &&
             y <= nextButtonY + buttonHeight
           ) {
@@ -676,15 +649,12 @@
 
       document.addEventListener("keydown", (e) => {
         if (!isGameActive || feedbackTimer > 0 || mode !== "game") return;
-        const currentQuestion = quizQuestions[currentRound] || {};
-        const options = currentQuestion.options || [];
+        const options = quizQuestions[currentRound]?.options || [];
         let idx = -1;
         if (e.key === "a" || e.key === "A") idx = 0;
         if (e.key === "b" || e.key === "B") idx = 1;
         if (e.key === "c" || e.key === "C") idx = 2;
-        if (idx >= 0 && idx < options.length) {
-          handleAnswer(options[idx]);
-        }
+        if (idx >= 0 && idx < options.length) handleAnswer(options[idx]);
       });
 
       function handleAnswer(option) {
@@ -694,31 +664,24 @@
         score += points;
 
         if (option === currentQuestion.answer) {
-          correctSound.play().catch((err) => console.log("Correct sound error:", err));
+          correctSound.play().catch(() => {});
           correctCount++;
         } else {
-          wrongSound.play().catch((err) => console.log("Wrong sound error:", err));
+          wrongSound.play().catch(() => {});
           wrongCount++;
         }
 
         feedbackTimer = 300;
-        console.log(`Answer selected: ${option}, Score: ${score}, Round: ${currentRound + 1}, Wrong: ${wrongCount}`);
         drawGame();
 
         setTimeout(() => {
-          console.log(
-            `Feedback timeout ended. CurrentRound: ${currentRound}, WrongCount: ${wrongCount}, GameActive: ${isGameActive}`,
-          );
           if (wrongCount >= 3) {
-            console.log("Ending game: Too many wrong answers");
             endGame("ძალიან ბევრი არასწორი პასუხი!");
           } else if (currentRound + 1 < totalRounds) {
             currentRound++;
             selectedAnswer = null;
-            console.log(`Advancing to round ${currentRound + 1}`);
             drawGame();
           } else {
-            console.log("Ending game: All rounds completed");
             endGame();
           }
         }, 5000);
@@ -744,9 +707,7 @@
         initLearn();
       });
 
-      startButton.addEventListener("click", () => {
-        initGame();
-      });
+      startButton.addEventListener("click", initGame);
 
       restartBtn.addEventListener("click", () => {
         mode = null;
@@ -755,6 +716,7 @@
       });
 
       preloadImages();
+      resizeCanvas();
     </script>
   </body>
 </html>

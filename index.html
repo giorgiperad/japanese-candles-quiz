@@ -286,8 +286,7 @@
       let animationFrameId = null;
       const FEEDBACK_DURATION = 120;
 
-      // Adjustable image size multiplier (default 0.9, adjust as needed)
-      const QUESTION_IMAGE_SIZE_MULTIPLIER = 0.9; // Change this to 0.5 for smaller, 1.2 for larger, etc.
+      const QUESTION_IMAGE_SIZE_MULTIPLIER = 0.9;
 
       function preloadImages() {
         [...gameQuestionPool, ...learnQuestionPool].forEach((q) => {
@@ -391,7 +390,7 @@
         const imageAreaHeight = height * 0.33;
         const currentQuestion = quizQuestions[currentRound] || {};
         const image = imageCache[currentQuestion.image];
-        const imageSize = Math.min(imageAreaHeight * QUESTION_IMAGE_SIZE_MULTIPLIER, width * 0.5); // Adjustable size
+        const imageSize = Math.min(imageAreaHeight * QUESTION_IMAGE_SIZE_MULTIPLIER, width * 0.5);
         
         if (image && image.complete && image.naturalWidth > 0) {
           const imageX = (width - imageSize) / 2;
@@ -465,10 +464,10 @@
           const descriptionY = buttonYStart + overlayHeight / 2;
           const iconSize = Math.min(height * 0.04, 24);
           const descriptionIcon = imageCache[descriptionIconUrl];
+          wrapText(ctx, currentQuestion.description || "აღწერა არ არის", width / 2, descriptionY, width - 40, height * 0.03);
           if (descriptionIcon && descriptionIcon.complete) {
-            ctx.drawImage(descriptionIcon, width / 2 - iconSize / 2 - 100, descriptionY - iconSize / 2, iconSize, iconSize);
+            ctx.drawImage(descriptionIcon, width - 30 - iconSize, buttonYStart + overlayHeight - iconSize - 10, iconSize, iconSize);
           }
-          wrapText(ctx, currentQuestion.description || "აღწერა არ არის", width / 2, descriptionY, width - 40 - iconSize - 10, height * 0.03);
           feedbackTimer--;
         }
 
@@ -490,7 +489,7 @@
         const imageAreaHeight = height * 0.33;
         const currentQuestion = quizQuestions[currentRound] || {};
         const image = imageCache[currentQuestion.image];
-        const imageSize = Math.min(imageAreaHeight * QUESTION_IMAGE_SIZE_MULTIPLIER, width * 0.5); // Adjustable size
+        const imageSize = Math.min(imageAreaHeight * QUESTION_IMAGE_SIZE_MULTIPLIER, width * 0.5);
         
         if (image && image.complete) {
           const imageX = (width - imageSize) / 2;
@@ -528,10 +527,10 @@
         const descriptionY = overlayYStart + overlayHeight / 2;
         const iconSize = Math.min(height * 0.04, 24);
         const descriptionIcon = imageCache[descriptionIconUrl];
+        wrapText(ctx, currentQuestion.description || "აღწერა არ არის", width / 2, descriptionY, width - 40, height * 0.03);
         if (descriptionIcon && descriptionIcon.complete) {
-          ctx.drawImage(descriptionIcon, width / 2 - iconSize / 2 - 100, descriptionY - iconSize / 2, iconSize, iconSize);
+          ctx.drawImage(descriptionIcon, width - 30 - iconSize, overlayYStart + overlayHeight - iconSize - 10, iconSize, iconSize);
         }
-        wrapText(ctx, currentQuestion.description || "აღწერა არ არის", width / 2, descriptionY, width - 40 - iconSize - 10, height * 0.03);
 
         const buttonHeight = Math.min(Math.max(height * 0.08, 40), 70);
         const buttonWidth = 120;

@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   const { mode, question } = req.body;
 
   if (!mode || !question) {
-    return res.status(400).json({ error: 'Mode and question are required' });
+    return res.status(400).json({ error: 'Mode and question are required!' });
   }
 
   const key = mode === 'game' ? 'gameQuestions' : 'learnQuestions';

@@ -6,7 +6,18 @@
   <title>Admin Panel - Japanese Candles Quiz</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    /* Same CSS as before */
+    body { font-family: "Poppins", sans-serif; padding: 20px; background: #e0f7fa; }
+    .container { max-width: 1000px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 15px; }
+    h1 { text-align: center; color: #01579b; }
+    .mode-toggle { display: flex; gap: 20px; justify-content: center; }
+    .mode-btn { padding: 10px; }
+    .mode-btn.active { background: #0288d1; color: #fff; }
+    input, textarea { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #80deea; border-radius: 5px; }
+    button { padding: 10px; background: #0288d1; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
+    .question-item { border: 1px solid #80deea; padding: 10px; margin: 10px 0; }
+    .question-item button { background: #f44336; margin-left: 10px; }
+    .question-item button.edit { background: #4caf50; }
+    #options-container { display: none; }
   </style>
 </head>
 <body>
@@ -16,30 +27,21 @@
       <button class="mode-btn active" data-mode="game">Game Mode</button>
       <button class="mode-btn" data-mode="learn">Learn Mode</button>
     </div>
-    <div class="form-section">
-      <label for="question">Question:</label>
-      <input type="text" id="question" placeholder="Enter the question">
-      <label for="image">Image URL:</label>
-      <input type="text" id="image" placeholder="Enter image URL">
-      <label for="description">Description:</label>
-      <textarea id="description" placeholder="Enter description"></textarea>
+    <div>
+      <input type="text" id="question" placeholder="Question">
+      <input type="text" id="image" placeholder="Image URL">
+      <textarea id="description" placeholder="Description"></textarea>
       <div id="options-container">
-        <label>Options (Game Mode Only):</label>
-        <div class="option-group">
-          <input type="text" class="option" placeholder="Option A">
-          <input type="text" class="option" placeholder="Option B">
-          <input type="text" class="option" placeholder="Option C">
-        </div>
-        <label for="answer">Correct Answer:</label>
-        <input type="text" id="answer" placeholder="Enter correct answer">
+        <input type="text" class="option" placeholder="Option A">
+        <input type="text" class="option" placeholder="Option B">
+        <input type="text" class="option" placeholder="Option C">
+        <input type="text" id="answer" placeholder="Correct Answer">
       </div>
       <button id="add-question">Add/Update Question</button>
-      <button id="clear-form" style="background: #f44336;">Clear Form</button>
+      <button id="clear-form" style="background: #f44336;">Clear</button>
     </div>
-    <div class="questions-section">
-      <h2>Existing Questions</h2>
-      <div id="question-list" class="question-list"></div>
-    </div>
+    <h2>Questions</h2>
+    <div id="question-list"></div>
   </div>
 
   <script>
@@ -72,8 +74,8 @@
           div.className = 'question-item';
           div.innerHTML = `
             <p><strong>${q.question}</strong></p>
-            <p>Image: ${q.image}</p>
-            <p>Description: ${q.description}</p>
+            <p>${q.image}</p>
+            <p>${q.description}</p>
             ${currentMode === 'game' ? `<p>Options: ${q.options.join(', ')} | Answer: ${q.answer}</p>` : ''}
             <button onclick="editQuestion(${index})" class="edit">Edit</button>
             <button onclick="deleteQuestion(${index})">Delete</button>
@@ -82,7 +84,7 @@
         });
       } catch (error) {
         console.error('Error loading questions:', error);
-        questionList.innerHTML = 'Failed to load questions.';
+        questionList.innerHTML = 'Error loading questions.';
       }
     }
 
@@ -93,11 +95,11 @@
       document.querySelectorAll(".option").forEach(opt => opt.value = '');
       document.getElementById("answer").value = '';
       editIndex = null;
-      addButton.textContent = 'Add Question';
+      addButton.textContent = 'Add/Update Question';
     }
 
     async function deleteQuestion(index) {
-      if (!confirm('Are you sure you want to delete this question?')) return;
+      if (!confirm('Delete this question?')) return;
       try {
         const response = await fetch('/api/deleteQuestion', {
           method: 'POST',
@@ -105,14 +107,14 @@
           body: JSON.stringify({ mode: currentMode, index }),
         });
         if (response.ok) {
-          alert('Question deleted successfully!');
+          alert('Deleted successfully!');
           loadQuestions();
         } else {
-          alert('Failed to delete question.');
+          alert('Failed to delete.');
         }
       } catch (error) {
-        console.error('Error deleting question:', error);
-        alert('Error deleting question.');
+        console.error('Error deleting:', error);
+        alert('Error deleting.');
       }
     }
 
@@ -138,27 +140,11 @@
       const question = document.getElementById("question").value.trim();
       const image = document.getElementById("image").value.trim();
       const description = document.getElementById("description").value.trim();
-
-      if (!question || !image || !description) {
-        alert("Please fill in all fields (Question, Image URL, Description).");
-        return;
-      }
-
       let newQuestion = { question, image, description };
 
       if (currentMode === "game") {
         const options = Array.from(document.querySelectorAll(".option")).map(opt => opt.value.trim());
         const answer = document.getElementById("answer").value.trim();
-
-        if (options.some(opt => !opt) || !answer) {
-          alert("Please fill in all options and the correct answer.");
-          return;
-        }
-        if (!options.includes(answer)) {
-          alert("The correct answer must match one of the options.");
-          return;
-        }
-
         newQuestion.options = options;
         newQuestion.answer = answer;
       }
@@ -169,22 +155,20 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mode: currentMode, question: newQuestion, index: editIndex }),
         });
-
         if (response.ok) {
-          alert(editIndex !== null ? "Question updated successfully!" : "Question added successfully!");
+          alert(editIndex !== null ? 'Updated!' : 'Added!');
           clearForm();
           loadQuestions();
         } else {
-          alert("Failed to save question.");
+          alert('Failed to save.');
         }
       } catch (error) {
-        console.error('Error:', error);
-        alert("Error saving question.");
+        console.error('Error saving:', error);
+        alert('Error saving.');
       }
     });
 
     clearButton.addEventListener("click", clearForm);
-
     loadQuestions();
   </script>
 </body>

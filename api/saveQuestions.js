@@ -1,4 +1,6 @@
-import { kv } from '@vercel/kv';
+import Redis from 'ioredis';
+
+const redis = new Redis(process.env.REDIS_URL);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -14,22 +16,20 @@ export default async function handler(req, res) {
   const key = mode === 'game' ? 'gameQuestions' : 'learnQuestions';
 
   try {
-    let questions = (await kv.get(key)) || [];
-    if (!Array.isArray(questions)) questions = [];
+    let questions = await redis.get(key);
+    questions = questions ? JSON.parse(questions) : [];
 
     if (index !== null && index !== undefined) {
-      // Edit existing question
       if (index >= 0 && index < questions.length) {
-        questions[index] = question;
+        questions[index] = question; // Edit
       } else {
         return res.status(400).json({ error: 'Invalid index' });
       }
     } else {
-      // Add new question
-      questions.push(question);
+      questions.push(question); // Add
     }
 
-    await kv.set(key, questions);
+    await redis.set(key, JSON.stringify(questions));
     res.status(200).json({ message: 'Question saved successfully' });
   } catch (error) {
     console.error('Error saving question:', error);

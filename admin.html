@@ -14,7 +14,7 @@
       min-height: 100vh;
     }
     .container {
-      max-width: 800px;
+      max-width: 1000px;
       margin: 0 auto;
       background: #fff;
       padding: 20px;
@@ -25,7 +25,7 @@
       text-align: center;
       color: #01579b;
     }
-    .form-section {
+    .form-section, .questions-section {
       margin-bottom: 30px;
     }
     label {
@@ -60,6 +60,7 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
+      margin-right: 10px;
     }
     button:hover {
       transform: translateY(-3px);
@@ -83,11 +84,28 @@
     #options-container {
       display: none;
     }
+    .question-list {
+      margin-top: 20px;
+    }
+    .question-item {
+      border: 1px solid #80deea;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      background: #f9f9f9;
+    }
+    .question-item button {
+      background: #f44336;
+      margin-left: 10px;
+    }
+    .question-item button.edit {
+      background: #4caf50;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Admin Panel - Add Questions</h1>
+    <h1>Admin Panel - Manage Questions</h1>
     <div class="mode-toggle">
       <button class="mode-btn active" data-mode="game">Game Mode</button>
       <button class="mode-btn" data-mode="learn">Learn Mode</button>
@@ -113,15 +131,23 @@
         <input type="text" id="answer" placeholder="Enter correct answer">
       </div>
       
-      <button id="add-question">Add Question</button>
+      <button id="add-question">Add/Update Question</button>
+      <button id="clear-form" style="background: #f44336;">Clear Form</button>
+    </div>
+    <div class="questions-section">
+      <h2>Existing Questions</h2>
+      <div id="question-list" class="question-list"></div>
     </div>
   </div>
 
   <script>
     let currentMode = "game";
+    let editIndex = null;
     const modeButtons = document.querySelectorAll(".mode-btn");
     const optionsContainer = document.getElementById("options-container");
     const addButton = document.getElementById("add-question");
+    const clearButton = document.getElementById("clear-form");
+    const questionList = document.getElementById("question-list");
 
     modeButtons.forEach(button => {
       button.addEventListener("click", () => {
@@ -129,8 +155,82 @@
         button.classList.add("active");
         currentMode = button.dataset.mode;
         optionsContainer.style.display = currentMode === "game" ? "block" : "none";
+        loadQuestions();
       });
     });
+
+    async function loadQuestions() {
+      const endpoint = currentMode === "game" ? '/api/getGameQuestions' : '/api/getLearnQuestions';
+      try {
+        const response = await fetch(endpoint);
+        const questions = await response.json();
+        questionList.innerHTML = '';
+        questions.forEach((q, index) => {
+          const div = document.createElement('div');
+          div.className = 'question-item';
+          div.innerHTML = `
+            <p><strong>${q.question}</strong></p>
+            <p>Image: ${q.image}</p>
+            <p>Description: ${q.description}</p>
+            ${currentMode === 'game' ? `<p>Options: ${q.options.join(', ')} | Answer: ${q.answer}</p>` : ''}
+            <button onclick="editQuestion(${index})" class="edit">Edit</button>
+            <button onclick="deleteQuestion(${index})">Delete</button>
+          `;
+          questionList.appendChild(div);
+        });
+      } catch (error) {
+        console.error('Error loading questions:', error);
+        questionList.innerHTML = 'Failed to load questions.';
+      }
+    }
+
+    function clearForm() {
+      document.getElementById("question").value = '';
+      document.getElementById("image").value = '';
+      document.getElementById("description").value = '';
+      document.querySelectorAll(".option").forEach(opt => opt.value = '');
+      document.getElementById("answer").value = '';
+      editIndex = null;
+      addButton.textContent = 'Add Question';
+    }
+
+    async function deleteQuestion(index) {
+      if (!confirm('Are you sure you want to delete this question?')) return;
+      try {
+        const response = await fetch('/api/deleteQuestion', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: currentMode, index }),
+        });
+        if (response.ok) {
+          alert('Question deleted successfully!');
+          loadQuestions();
+        } else {
+          alert('Failed to delete question.');
+        }
+      } catch (error) {
+        console.error('Error deleting question:', error);
+        alert('Error deleting question.');
+      }
+    }
+
+    function editQuestion(index) {
+      fetch(currentMode === 'game' ? '/api/getGameQuestions' : '/api/getLearnQuestions')
+        .then(res => res.json())
+        .then(questions => {
+          const q = questions[index];
+          document.getElementById("question").value = q.question;
+          document.getElementById("image").value = q.image;
+          document.getElementById("description").value = q.description;
+          if (currentMode === 'game') {
+            const options = document.querySelectorAll(".option");
+            q.options.forEach((opt, i) => options[i].value = opt);
+            document.getElementById("answer").value = q.answer;
+          }
+          editIndex = index;
+          addButton.textContent = 'Update Question';
+        });
+    }
 
     addButton.addEventListener("click", async () => {
       const question = document.getElementById("question").value.trim();
@@ -165,12 +265,13 @@
         const response = await fetch('/api/saveQuestions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mode: currentMode, question: newQuestion }),
+          body: JSON.stringify({ mode: currentMode, question: newQuestion, index: editIndex }),
         });
 
         if (response.ok) {
-          alert("Question added successfully!");
-          document.querySelectorAll("input, textarea").forEach(el => el.value = "");
+          alert(editIndex !== null ? "Question updated successfully!" : "Question added successfully!");
+          clearForm();
+          loadQuestions();
         } else {
           alert("Failed to save question.");
         }
@@ -179,6 +280,11 @@
         alert("Error saving question.");
       }
     });
+
+    clearButton.addEventListener("click", clearForm);
+
+    // Load questions on page load
+    loadQuestions();
   </script>
 </body>
 </html>

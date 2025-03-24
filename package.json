@@ -1,5 +1,7 @@
 {
   "name": "japanese-candles-quiz",
   "version": "1.0.0",
-  "dependencies": {}
+  "dependencies": {
+    "@vercel/kv": "^1.0.0"
+  }
 }

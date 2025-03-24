@@ -1,7 +1,6 @@
-const fs = require('fs').promises;
-const path = require('path');
+import { kv } from '@vercel/kv';
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -12,23 +11,20 @@ module.exports = async (req, res) => {
     return res.status(400).json({ error: 'Mode and question are required' });
   }
 
-  const fileName = mode === 'game' ? 'gameQuestions.json' : 'learnQuestions.json';
-  const filePath = path.join(process.cwd(), 'data', fileName);
+  const key = mode === 'game' ? 'gameQuestions' : 'learnQuestions';
 
   try {
-    let questions = [];
-    try {
-      const data = await fs.readFile(filePath, 'utf8');
-      questions = JSON.parse(data);
-    } catch (error) {
-      // File doesn't exist yet, start with empty array
-    }
-
+    // Fetch existing questions, or initialize as empty array
+    let questions = (await kv.get(key)) || [];
+    // Ensure questions is an array
+    if (!Array.isArray(questions)) questions = [];
+    // Add new question
     questions.push(question);
-    await fs.writeFile(filePath, JSON.stringify(questions, null, 2));
+    // Save back to KV
+    await kv.set(key, questions);
     res.status(200).json({ message: 'Question saved successfully' });
   } catch (error) {
     console.error('Error saving question:', error);
     res.status(500).json({ error: 'Failed to save question' });
   }
-};
+}

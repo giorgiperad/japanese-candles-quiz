@@ -1,14 +1,11 @@
-const fs = require('fs').promises;
-const path = require('path');
+import { kv } from '@vercel/kv';
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   try {
-    const filePath = path.join(process.cwd(), 'data', 'gameQuestions.json');
-    const data = await fs.readFile(filePath, 'utf8');
-    const questions = JSON.parse(data);
-    res.status(200).json(questions);
+    const gameQuestions = await kv.get('gameQuestions') || [];
+    res.status(200).json(gameQuestions);
   } catch (error) {
-    console.error('Error reading game questions:', error);
+    console.error('Error fetching game questions:', error);
     res.status(500).json([]);
   }
-};
+}

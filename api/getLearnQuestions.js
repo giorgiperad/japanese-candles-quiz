@@ -1,14 +1,11 @@
-const fs = require('fs').promises;
-const path = require('path');
+import { kv } from '@vercel/kv';
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   try {
-    const filePath = path.join(process.cwd(), 'data', 'learnQuestions.json');
-    const data = await fs.readFile(filePath, 'utf8');
-    const questions = JSON.parse(data);
-    res.status(200).json(questions);
+    const learnQuestions = await kv.get('learnQuestions') || [];
+    res.status(200).json(learnQuestions);
   } catch (error) {
-    console.error('Error reading learn questions:', error);
+    console.error('Error fetching learn questions:', error);
     res.status(500).json([]);
   }
-};
+}

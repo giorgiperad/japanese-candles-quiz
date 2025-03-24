@@ -6,6 +6,7 @@
     <title>Japanese Candles Quiz - Modern</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Noto+Sans+Georgian:wght@400;600&display=swap" rel="stylesheet">
     <style>
+      /* Your existing CSS remains unchanged */
       body {
         margin: 0;
         padding: 0;
@@ -218,37 +219,49 @@
     </div>
 
     <script>
-      const gameQuestionPool = [
-        {
-          question: "რა არის ეს სანთელი?",
-          answer: "კალია/Dragonfly Doji",
-          options: ["გრძელფეხა დოჯი", "სასიკვდილო დოჯი", "კალია/Dragonfly Doji"],
-          image: "https://ta3bviqjtxy1kv7x.public.blob.vercel-storage.com/dragonfly-JW0AaWUPsWHwspdhPaFoKu6yzvH7qg.JPG",
-          description: "დოჯის იშვიათი სტრუქტურა, ხშირად კალიას უწოდებენ, მისი სტრუქტურიდან გამომდინარე. სანთელი იქმნება ტალღის ქვედა ნაწილში და აღმავალ ტალღაზე მიგვანიშნებს.",
-        },
-        {
-          question: "რა არის ეს სანთელი?",
-          answer: "სასიკვდილო დოჯი",
-          options: ["კალია", "სასიკვდილო დოჯი", "გრძელფეხა დოჯი"],
-          image: "https://ta3bviqjtxy1kv7x.public.blob.vercel-storage.com/gravestone-rk6lTfoINeUuqT4g6lUfhsyrxUx6Ps.JPG",
-          description: "ყველაზე აგრესიული ბეარ სცენარის საწყისი, ყველაზე ნეგატიური სანთელი რომელიც გვანიშნებს ტრენდის შემოტრიალებაზე.",
-        },
-      ];
+      // Load questions from localStorage or use defaults if none exist
+      function loadQuestions() {
+        const defaultGameQuestions = [
+          {
+            question: "რა არის ეს სანთელი?",
+            answer: "კალია/Dragonfly Doji",
+            options: ["გრძელფეხა დოჯი", "სასიკვდილო დოჯი", "კალია/Dragonfly Doji"],
+            image: "https://ta3bviqjtxy1kv7x.public.blob.vercel-storage.com/dragonfly-JW0AaWUPsWHwspdhPaFoKu6yzvH7qg.JPG",
+            description: "დოჯის იშვიათი სტრუქტურა, ხშირად კალიას უწოდებენ, მისი სტრუქტურიდან გამომდინარე. სანთელი იქმნება ტალღის ქვედა ნაწილში და აღმავალ ტალღაზე მიგვანიშნებს.",
+          },
+          {
+            question: "რა არის ეს სანთელი?",
+            answer: "სასიკვდილო დოჯი",
+            options: ["კალია", "სასიკვდილო დოჯი", "გრძელფეხა დოჯი"],
+            image: "https://ta3bviqjtxy1kv7x.public.blob.vercel-storage.com/gravestone-rk6lTfoINeUuqT4g6lUfhsyrxUx6Ps.JPG",
+            description: "ყველაზე აგრესიული ბეარ სცენარის საწყისი, ყველაზე ნეგატიური სანთელი რომელიც გვანიშნებს ტრენდის შემოტრიალებაზე.",
+          },
+        ];
 
-      const learnQuestionPool = [
-        {
-          question: "რას ნიშნავს კალია/Dragonfly Doji?",
-          
-          image: "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/bb1-DKDv7KiUtOSstb5xsFG2mvRcqkWiNA.jpeg?aRUv",
-          description: "ეს არის დოჯის ტიპი, რომელიც მიუთითებს პოტენციურ აღმავალ ტრენდზე. იგი ხშირად ჩნდება ფასის დაბალ წერტილში და გამოიყურება როგორც გრძელი ქვედა ჩრდილი მცირე სხეულით.",
-        },
-        {
-          question: "რას ნიშნავს სასიკვდილო დოჯი?",
-          
-          image: "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/gravestone-WZn634IGj8HyRhLidmWqsrJIcE8KSO.jpeg?wlAd",
-          description: "ეს სანთელი მიუთითებს ძლიერ დაცემით ტრენდზე. გამოიყურება როგორც გრძელი ზედა ჩრდილი მცირე სხეულით ფასის მაღალ წერტილში.",
-        },
-      ];
+        const defaultLearnQuestions = [
+          {
+            question: "რას ნიშნავს კალია/Dragonfly Doji?",
+            image: "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/bb1-DKDv7KiUtOSstb5xsFG2mvRcqkWiNA.jpeg?aRUv",
+            description: "ეს არის დოჯის ტიპი, რომელიც მიუთითებს პოტენციურ აღმავალ ტრენდზე. იგი ხშირად ჩნდება ფასის დაბალ წერტილში და გამოიყურება როგორც გრძელი ქვედა ჩრდილი მცირე სხეულით.",
+          },
+          {
+            question: "რას ნიშნავს სასიკვდილო დოჯი?",
+            image: "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/gravestone-WZn634IGj8HyRhLidmWqsrJIcE8KSO.jpeg?wlAd",
+            description: "ეს სანთელი მიუთითებს ძლიერ დაცემით ტრენდზე. გამოიყურება როგორც გრძელი ზედა ჩრდილი მცირე სხეულით ფასის მაღალ წერტილში.",
+          },
+        ];
+
+        const storedGameQuestions = JSON.parse(localStorage.getItem("gameQuestionPool")) || defaultGameQuestions;
+        const storedLearnQuestions = JSON.parse(localStorage.getItem("learnQuestionPool")) || defaultLearnQuestions;
+
+        return {
+          gameQuestionPool: storedGameQuestions,
+          learnQuestionPool: storedLearnQuestions,
+        };
+      }
+
+      // Load questions at the start
+      const { gameQuestionPool, learnQuestionPool } = loadQuestions();
 
       const correctSound = new Audio("https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/correct-zZhYrVGunWGwLmLL0aEvGRPwhzCRLS.wav");
       const wrongSound = new Audio("https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/wrong-U7roBiQvNu0RarKFItCsIPhgzN8QZz.mpeg");
@@ -462,7 +475,7 @@
 
           ctx.font = `${Math.min(Math.max(height * 0.025, 14), 22)}px 'Poppins'`;
           const descriptionY = buttonYStart + overlayHeight / 2;
-          const iconSize = 50; // Set to 50px
+          const iconSize = 50;
           const descriptionIcon = imageCache[descriptionIconUrl];
           wrapText(ctx, currentQuestion.description || "აღწერა არ არის", width / 2, descriptionY, width - 40, height * 0.03);
           if (descriptionIcon && descriptionIcon.complete) {
@@ -524,7 +537,7 @@
 
         ctx.font = `${Math.min(Math.max(height * 0.025, 14), 22)}px 'Poppins'`;
         const descriptionY = overlayYStart + overlayHeight / 2;
-        const iconSize = 50; // Set to 50px
+        const iconSize = 50;
         const descriptionIcon = imageCache[descriptionIconUrl];
         wrapText(ctx, currentQuestion.description || "აღწერა არ არის", width / 2, descriptionY, width - 40, height * 0.03);
         if (descriptionIcon && descriptionIcon.complete) {

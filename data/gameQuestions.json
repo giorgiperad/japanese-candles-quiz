@@ -1,0 +1,16 @@
+[
+  {
+    "question": "რა არის ეს სანთელი?",
+    "answer": "კალია/Dragonfly Doji",
+    "options": ["გრძელფეხა დოჯი", "სასიკვდილო დოჯი", "კალია/Dragonfly Doji"],
+    "image": "https://ta3bviqjtxy1kv7x.public.blob.vercel-storage.com/dragonfly-JW0AaWUPsWHwspdhPaFoKu6yzvH7qg.JPG",
+    "description": "დოჯის იშვიათი სტრუქტურა, ხშირად კალიას უწოდებენ, მისი სტრუქტურიდან გამომდინარე. სანთელი იქმნება ტალღის ქვედა ნაწილში და აღმავალ ტალღაზე მიგვანიშნებს."
+  },
+  {
+    "question": "რა არის ეს სანთელი?",
+    "answer": "სასიკვდილო დოჯი",
+    "options": ["კალია", "სასიკვდილო დოჯი", "გრძელფეხა დოჯი"],
+    "image": "https://ta3bviqjtxy1kv7x.public.blob.vercel-storage.com/gravestone-rk6lTfoINeUuqT4g6lUfhsyrxUx6Ps.JPG",
+    "description": "ყველაზე აგრესიული ბეარ სცენარის საწყისი, ყველაზე ნეგატიური სანთელი რომელიც გვანიშნებს ტრენდის შემოტრიალებაზე."
+  }
+]

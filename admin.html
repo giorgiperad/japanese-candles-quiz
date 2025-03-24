@@ -132,7 +132,7 @@
       });
     });
 
-    addButton.addEventListener("click", () => {
+    addButton.addEventListener("click", async () => {
       const question = document.getElementById("question").value.trim();
       const image = document.getElementById("image").value.trim();
       const description = document.getElementById("description").value.trim();
@@ -159,18 +159,25 @@
 
         newQuestion.options = options;
         newQuestion.answer = answer;
-
-        const gameQuestions = JSON.parse(localStorage.getItem("gameQuestionPool")) || [];
-        gameQuestions.push(newQuestion);
-        localStorage.setItem("gameQuestionPool", JSON.stringify(gameQuestions));
-      } else {
-        const learnQuestions = JSON.parse(localStorage.getItem("learnQuestionPool")) || [];
-        learnQuestions.push(newQuestion);
-        localStorage.setItem("learnQuestionPool", JSON.stringify(learnQuestions));
       }
 
-      alert("Question added successfully!");
-      document.querySelectorAll("input, textarea").forEach(el => el.value = "");
+      try {
+        const response = await fetch('/api/saveQuestions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: currentMode, question: newQuestion }),
+        });
+
+        if (response.ok) {
+          alert("Question added successfully!");
+          document.querySelectorAll("input, textarea").forEach(el => el.value = "");
+        } else {
+          alert("Failed to save question.");
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert("Error saving question.");
+      }
     });
   </script>
 </body>

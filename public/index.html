@@ -219,49 +219,74 @@
     </div>
 
     <script>
-      // Load questions from localStorage or use defaults if none exist
-      function loadQuestions() {
-        const defaultGameQuestions = [
-          {
-            question: "რა არის ეს სანთელი?",
-            answer: "კალია/Dragonfly Doji",
-            options: ["გრძელფეხა დოჯი", "სასიკვდილო დოჯი", "კალია/Dragonfly Doji"],
-            image: "https://ta3bviqjtxy1kv7x.public.blob.vercel-storage.com/dragonfly-JW0AaWUPsWHwspdhPaFoKu6yzvH7qg.JPG",
-            description: "დოჯის იშვიათი სტრუქტურა, ხშირად კალიას უწოდებენ, მისი სტრუქტურიდან გამომდინარე. სანთელი იქმნება ტალღის ქვედა ნაწილში და აღმავალ ტალღაზე მიგვანიშნებს.",
-          },
-          {
-            question: "რა არის ეს სანთელი?",
-            answer: "სასიკვდილო დოჯი",
-            options: ["კალია", "სასიკვდილო დოჯი", "გრძელფეხა დოჯი"],
-            image: "https://ta3bviqjtxy1kv7x.public.blob.vercel-storage.com/gravestone-rk6lTfoINeUuqT4g6lUfhsyrxUx6Ps.JPG",
-            description: "ყველაზე აგრესიული ბეარ სცენარის საწყისი, ყველაზე ნეგატიური სანთელი რომელიც გვანიშნებს ტრენდის შემოტრიალებაზე.",
-          },
-        ];
+      // Default questions as fallback
+      const defaultGameQuestions = [
+        {
+          question: "რა არის ეს სანთელი?",
+          answer: "კალია/Dragonfly Doji",
+          options: ["გრძელფეხა დოჯი", "სასიკვდილო დოჯი", "კალია/Dragonfly Doji"],
+          image: "https://ta3bviqjtxy1kv7x.public.blob.vercel-storage.com/dragonfly-JW0AaWUPsWHwspdhPaFoKu6yzvH7qg.JPG",
+          description: "დოჯის იშვიათი სტრუქტურა, ხშირად კალიას უწოდებენ, მისი სტრუქტურიდან გამომდინარე. სანთელი იქმნება ტალღის ქვედა ნაწილში და აღმავალ ტალღაზე მიგვანიშნებს.",
+        },
+        {
+          question: "რა არის ეს სანთელი?",
+          answer: "სასიკვდილო დოჯი",
+          options: ["კალია", "სასიკვდილო დოჯი", "გრძელფეხა დოჯი"],
+          image: "https://ta3bviqjtxy1kv7x.public.blob.vercel-storage.com/gravestone-rk6lTfoINeUuqT4g6lUfhsyrxUx6Ps.JPG",
+          description: "ყველაზე აგრესიული ბეარ სცენარის საწყისი, ყველაზე ნეგატიური სანთელი რომელიც გვანიშნებს ტრენდის შემოტრიალებაზე.",
+        },
+      ];
 
-        const defaultLearnQuestions = [
-          {
-            question: "რას ნიშნავს კალია/Dragonfly Doji?",
-            image: "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/bb1-DKDv7KiUtOSstb5xsFG2mvRcqkWiNA.jpeg?aRUv",
-            description: "ეს არის დოჯის ტიპი, რომელიც მიუთითებს პოტენციურ აღმავალ ტრენდზე. იგი ხშირად ჩნდება ფასის დაბალ წერტილში და გამოიყურება როგორც გრძელი ქვედა ჩრდილი მცირე სხეულით.",
-          },
-          {
-            question: "რას ნიშნავს სასიკვდილო დოჯი?",
-            image: "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/gravestone-WZn634IGj8HyRhLidmWqsrJIcE8KSO.jpeg?wlAd",
-            description: "ეს სანთელი მიუთითებს ძლიერ დაცემით ტრენდზე. გამოიყურება როგორც გრძელი ზედა ჩრდილი მცირე სხეულით ფასის მაღალ წერტილში.",
-          },
-        ];
+      const defaultLearnQuestions = [
+        {
+          question: "რას ნიშნავს კალია/Dragonfly Doji?",
+          image: "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/bb1-DKDv7KiUtOSstb5xsFG2mvRcqkWiNA.jpeg?aRUv",
+          description: "ეს არის დოჯის ტიპი, რომელიც მიუთითებს პოტენციურ აღმავალ ტრენდზე. იგი ხშირად ჩნდება ფასის დაბალ წერტილში და გამოიყურება როგორც გრძელი ქვედა ჩრდილი მცირე სხეულით.",
+        },
+        {
+          question: "რას ნიშნავს სასიკვდილო დოჯი?",
+          image: "https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/gravestone-WZn634IGj8HyRhLidmWqsrJIcE8KSO.jpeg?wlAd",
+          description: "ეს სანთელი მიუთითებს ძლიერ დაცემით ტრენდზე. გამოიყურება როგორც გრძელი ზედა ჩრდილი მცირე სხეულით ფასის მაღალ წერტილში.",
+        },
+      ];
 
-        const storedGameQuestions = JSON.parse(localStorage.getItem("gameQuestionPool")) || defaultGameQuestions;
-        const storedLearnQuestions = JSON.parse(localStorage.getItem("learnQuestionPool")) || defaultLearnQuestions;
+      // Fetch questions from Vercel API
+      async function loadQuestions() {
+        try {
+          const gameResponse = await fetch('/api/getGameQuestions');
+          const learnResponse = await fetch('/api/getLearnQuestions');
+          
+          if (!gameResponse.ok || !learnResponse.ok) {
+            throw new Error('API request failed');
+          }
 
-        return {
-          gameQuestionPool: storedGameQuestions,
-          learnQuestionPool: storedLearnQuestions,
-        };
+          const gameQuestions = await gameResponse.json();
+          const learnQuestions = await learnResponse.json();
+
+          return {
+            gameQuestionPool: gameQuestions.length > 0 ? gameQuestions : defaultGameQuestions,
+            learnQuestionPool: learnQuestions.length > 0 ? learnQuestions : defaultLearnQuestions,
+          };
+        } catch (error) {
+          console.error('Error fetching questions:', error);
+          return {
+            gameQuestionPool: defaultGameQuestions,
+            learnQuestionPool: defaultLearnQuestions,
+          };
+        }
       }
 
-      // Load questions at the start
-      const { gameQuestionPool, learnQuestionPool } = loadQuestions();
+      let gameQuestionPool = [];
+      let learnQuestionPool = [];
+
+      // Load questions on startup and wait for them before proceeding
+      (async () => {
+        const { gameQuestionPool: gameQs, learnQuestionPool: learnQs } = await loadQuestions();
+        gameQuestionPool = gameQs;
+        learnQuestionPool = learnQs;
+        preloadImages(); // Call after questions are loaded
+        resizeCanvas();  // Ensure canvas is sized after load
+      })();
 
       const correctSound = new Audio("https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/correct-zZhYrVGunWGwLmLL0aEvGRPwhzCRLS.wav");
       const wrongSound = new Audio("https://lqy3lriiybxcejon.public.blob.vercel-storage.com/BlYgTSuLAG9w/wrong-U7roBiQvNu0RarKFItCsIPhgzN8QZz.mpeg");
@@ -773,9 +798,6 @@
 
       startButton.addEventListener("click", initGame);
       restartBtn.addEventListener("click", returnToHome);
-
-      preloadImages();
-      resizeCanvas();
     </script>
   </body>
 </html>
